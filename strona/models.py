@@ -20,13 +20,12 @@ class Comment(models.Model):
     class Meta:
         ordering = ['-date']
     def __str__(self):
-        return self.User + self.date
+        return self.User
 
 
 class Multimedia(models.Model):
     photos = models.ImageField()
     post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'photos',blank = True) #bedzie mozna dodawac kilka zdjec do jednego posta.
-    galery = models.ForeignKey('Galery',on_delete = models.CASCADE,blank = True)
 
 
 class Tags(models.Model):
