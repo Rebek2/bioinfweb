@@ -6,7 +6,7 @@ router = routers.DefaultRouter()
 router.register(r'posts',views.PostViewSet)
 router.register(r'tags',views.TagsViewSet)
 router.register(r'multimedia',views.MultimediaViewSet)
-router.register(r'comennt',views.CommentViewSet)
+router.register(r'comment',views.CommentViewSet)
 
 
 urlpatterns = [
