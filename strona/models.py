@@ -2,12 +2,15 @@ from django.db import models
 
 # Create your models here.
 class Post(models.Model):
+
     title = models.CharField(max_length = 30)
     content = models.TextField(max_length = 10000)
     author = models.CharField(max_length = 10)
     date_created = models.DateTimeField(auto_now_add = True)
     tag = models.ManyToManyField('Tags',blank = True)
     publish = models.BooleanField(default = False)
+    class Meta:
+        ordering = ('-date_created',)
     def __str__(self):
         return self.title
 

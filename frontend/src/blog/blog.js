@@ -31,21 +31,39 @@ render()
     }
     else{
         return(
-            <div className='blog'> 
-                <ul>
+            <div>
+            
+                
                     {items.map(item=>(
-                        <li key={item.id}>
-                           Tytuł: {item.title} | Autor: {item.author}
-                           <div>
-                               {item.content}
-                           </div>
+                        
+                        <div class = 'card'  key={item.id}>
+                            
+                         <div class = 'card-header'>Tytuł: {item.title} | Autor: {item.author} | {item.date_created}</div>
+                           <div class ='card-body'>{item.content} </div>
                            
-                        </li>
+
+                                 
+                           
+                           
+                        </div>
+                        
                     ))}
-                </ul>
+                
             </div>
+        
         )
     }
 }
 }
-export default Blog;
+
+
+function App2() {
+    return(
+      <div class = 'container'>
+          <h2>Wszystkie posty:</h2>
+        <Blog/>
+      </div>
+    )
+  }
+  
+export default App2;
