@@ -5,9 +5,12 @@ import { useHistory } from "react-router-dom";
 const Create = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [author, setAuthor] = useState('mario');
+  const [author, setAuthor] = useState('');
   const[isPending,setIsPending] = useState(false);
   const history = useHistory();
+
+
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -18,19 +21,23 @@ const Create = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(blog)
     }).then(() => {
-      // history.go(-1);
+
       history.push('/blog');
     })
-  }
+    .catch((error) =>{
+      setIsPending(false)
+  })
+
+  }    
   return (
     <div className="container">
-
+      <div class = 'mb-3'>
       <form onSubmit={handleSubmit}>
         <div class = 'mb-3'>
-        <label for= "exampleFormControlInput1" class="form-label">Blog title:</label>
+        <label for= "exampleFormControlInput1" class="form-label">Tytuł posta:</label>
         <input 
           type="text" 
-          class='form-label'
+          class='form-control'
           placeholder="Tytuł.."
           required 
           value={title}
@@ -38,35 +45,41 @@ const Create = () => {
         />
         </div>
         <div class ='mb-3'>
-        <label>Blog content:</label>
+        <label for='exampleFormControlTextarea1' class="form-label">Tekst posta:</label>
         <textarea
+        class="form-control" id="exampleFormControlTextarea1" rows="3"
           required
           value={content}
           onChange={(e) => setContent(e.target.value)}
         ></textarea>
         </div>
-        <div class ='mb-3'>
-        <label>Blog author:</label>
-        <select
+        <div class = 'mb-3'>
+        <label for= "exampleFormControlInput1" class="form-label">Autor:</label>
+        <input 
+          type="text" 
+          class='form-control'
+         
+          required 
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
-        >
-          <option value="mario">mario</option>
-          <option value="yoshi">yoshi</option>
-        </select>
+        />
         </div>
-        {!isPending && <button type = 'submit' class = 'btn btn-primary'>Add Blog</button>}
-        { isPending && <button disabled type = 'submit' class = 'btn btn-primary'>Adding Blog</button>}
-
+        <center>
+        {!isPending && <button type = 'submit' class = 'btn btn-primary'>Dodaj post</button>}
+        { isPending && <button disabled type = 'submit' class = 'btn btn-primary'>Dodawanie...</button>}
+        </center>
       </form>
+      </div>
     </div>
   );
 }
 
 function App3() {
   return (
-    <div class ='container'>
-      <h2>Dodaj nowy post:</h2>
+    <div class ='mb-3'>
+      <div class = 'container'>
+      <h1 class="display-4">Dodaj nowy post</h1>
+      </div>
       <Create/>
     
     </div>
