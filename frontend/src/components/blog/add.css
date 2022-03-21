@@ -1,0 +1,9 @@
+#shadow-add{
+    -moz-box-shadow:    1px 1px 1px 1px #ccc;
+    -webkit-box-shadow: 1px 1px 1px 1px #ccc;
+    box-shadow:         1px 1px 1px 1px #ccc;
+}
+
+#rozmiar{
+    width:900px;
+}

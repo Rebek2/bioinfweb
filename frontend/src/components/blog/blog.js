@@ -1,10 +1,14 @@
 import React,{Component} from 'react';
-
-
+import App4 from '../navbar/navBar'
+import './wyglad.css'
+import { useNavigate } from "@reach/router";
 //Collecting data from API
+import { Link } from 'react-router-dom';
 
 class Blog extends Component{
+    
 
+    
     constructor(props){
         super(props);
         this.state = {
@@ -12,7 +16,7 @@ class Blog extends Component{
             isLoaded:false,
      
        }
-    }
+    } 
 componentDidMount(){
     fetch('http://127.0.0.1:8000/api/posts/')
     .then(res=>res.json())
@@ -55,19 +59,26 @@ render()
             <div class = 'container'>
                 
                 <div class ='row align-items-center'>
+                    
                     {items.map(item=>(                                               
                         <div class = 'col-6 .--4col-'>
+                         <Link to={`/post/${item.id}`}>
+                         <div class ='blog-diw'
+                                    key={item.id}>
                          
-                       
-                            <div class = 'card'  key={item.id}>
                             
-                                <div class = 'card-header'>Tytuł: {item.title} | Autor: {item.author} 
-                                    </div>
-                                    <div class ='card-body'>{item.content} 
-                                        </div>                     
+                            <div  >
+                            
+                                <div class ='a' >Tytuł: {item.title}| Autor: {item.author} 
+                                  
+                                </div>                     
                             </div>
+                            
+                        </div>
+                        </Link>
                         </div>     
                         ))}
+                        
                     </div>
 
                 </div>
@@ -78,12 +89,11 @@ render()
 
 
 function App2() {
-    return(
+    return(<div><App4/>
       <div class = 'container'>
-          <center>
-          <h2>Wszystkie posty:</h2>
-          </center>
+
         <Blog/>
+      </div>
       </div>
     )
   }

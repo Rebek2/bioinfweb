@@ -1,7 +1,8 @@
 import { useState } from "react";
 import React from 'react';
 import { useHistory } from "react-router-dom";
-
+import App4 from '../navbar/navBar'
+import './add.css'
 const Create = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -30,12 +31,13 @@ const Create = () => {
 
   }    
   return (
-    <div className="container">
-      <div class = 'mb-3'>
+    <div class="container" id='rozmiar'>
+      <div class = 'mb-3' id='rozmiar'>
       <form onSubmit={handleSubmit}>
         <div class = 'mb-3'>
         <label for= "exampleFormControlInput1" class="form-label">Tytuł posta:</label>
-        <input 
+        <input
+          id='shadow-add' 
           type="text" 
           class='form-control'
           placeholder="Tytuł.."
@@ -47,7 +49,8 @@ const Create = () => {
         <div class ='mb-3'>
         <label for='exampleFormControlTextarea1' class="form-label">Tekst posta:</label>
         <textarea
-        class="form-control" id="exampleFormControlTextarea1" rows="3"
+        id='shadow-add' 
+        class="form-control"  rows="3"
           required
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -56,6 +59,7 @@ const Create = () => {
         <div class = 'mb-3'>
         <label for= "exampleFormControlInput1" class="form-label">Autor:</label>
         <input 
+        id='shadow-add' 
           type="text" 
           class='form-control'
          
@@ -65,7 +69,7 @@ const Create = () => {
         />
         </div>
         <center>
-        {!isPending && <button type = 'submit' class = 'btn btn-primary'>Dodaj post</button>}
+        {!isPending && <button id='shadow-add'  type = 'submit' class = 'btn btn-primary'>Dodaj post</button>}
         { isPending && <button disabled type = 'submit' class = 'btn btn-primary'>Dodawanie...</button>}
         </center>
       </form>
@@ -75,13 +79,15 @@ const Create = () => {
 }
 
 function App3() {
-  return (
+  return (<div>
+    <App4/>
     <div class ='mb-3'>
       <div class = 'container'>
       <h1 class="display-4">Dodaj nowy post</h1>
       </div>
       <Create/>
     
+    </div>
     </div>
   )
 }
