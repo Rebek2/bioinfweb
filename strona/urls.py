@@ -13,4 +13,5 @@ urlpatterns = [
     path('home/',views.home),
     path('api/', include(router.urls)),
     path('api-auth/',include('rest_framework.urls')),
+    path('^comments/(?P<post>.+)/$', views.PurchaseList.as_view()),
 ]

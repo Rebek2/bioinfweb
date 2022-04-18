@@ -9,6 +9,7 @@ class Post(models.Model):
     date_created = models.DateTimeField(auto_now_add = True)
     tag = models.ManyToManyField('Tags',blank = True)
     publish = models.BooleanField(default = False)
+
     class Meta:
         ordering = ('-date_created',)
     def __str__(self):

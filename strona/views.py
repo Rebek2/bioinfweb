@@ -3,7 +3,7 @@ from .models import Post,Comment,Galery,Tags,Multimedia
 from .serializer import *
 from rest_framework import viewsets
 # Create your views here.
-
+from rest_framework import generics
 
 def home(request):
     return render(request,'Home.html')
@@ -24,3 +24,14 @@ class MultimediaViewSet(viewsets.ModelViewSet):
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
+
+class PurchaseList(generics.ListAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases for
+        the user as determined by the username portion of the URL.
+        """
+        post = self.kwargs['post']
+        return Comment.objects.filter(post_id=post).all()
