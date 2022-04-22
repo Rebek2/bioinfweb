@@ -1,5 +1,8 @@
 from django.contrib import admin
 from .models import MultiMedia
 
-admin.site.register(MultiMedia)
+class MultiMedia_Admin(admin.ModelAdmin):
+    list_display = ['title']
+
+admin.site.register(MultiMedia, MultiMedia_Admin)
 # Register your models here.
