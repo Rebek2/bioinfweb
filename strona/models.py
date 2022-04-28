@@ -9,6 +9,7 @@ class Post(models.Model):
     date_created = models.DateTimeField(auto_now_add = True)
     tag = models.ManyToManyField('Tags',blank = True)
     publish = models.BooleanField(default = False)
+
     class Meta:
         ordering = ('-date_created',)
     def __str__(self):
@@ -27,6 +28,7 @@ class Comment(models.Model):
 
 
 class Multimedia(models.Model):
+<<<<<<< HEAD
 
     post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'photos',blank = True) #bedzie mozna dodawac kilka zdjec do jednego posta.
     photos = VersatileImageField(
@@ -35,6 +37,13 @@ class Multimedia(models.Model):
         ppoi_field='image_ppoi'
     )
     image_ppoi = PPOIField()
+=======
+    title = models.CharField(max_length=250)
+    photos = models.ImageField(upload_to='photos/')
+    post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'photos',blank = True) #bedzie mozna dodawac kilka zdjec do jednego posta.
+    def __str__(self):
+        return self.title
+>>>>>>> main
 
 class Tags(models.Model):
     tagi = models.CharField(max_length = 30)
