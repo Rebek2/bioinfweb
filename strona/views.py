@@ -3,7 +3,7 @@ from .serializer import *
 from rest_framework import viewsets
 from .DAL import Database
 # Create your views here.
-
+from rest_framework import generics
 
 def home(request):
     print('czesc')
@@ -34,3 +34,5 @@ class MultimediaViewSet(viewsets.ModelViewSet):
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
+
+

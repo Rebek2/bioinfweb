@@ -1,6 +1,11 @@
 from django.db import models
 
 
+from versatileimagefield.fields import VersatileImageField, PPOIField
+# Create your models here.
+
+
+
 class Post(models.Model):
     title = models.CharField(max_length = 30)
     content = models.TextField(max_length = 10000)
@@ -30,12 +35,15 @@ class Comment(models.Model):
 
 
 class Multimedia(models.Model):
-    title = models.CharField(max_length=250)
-    photos = models.ImageField(upload_to='photos/')
     post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'photos',blank = True) #bedzie mozna dodawac kilka zdjec do jednego posta.
+    photos = VersatileImageField(
+        'Image',
+        upload_to='photos/',
+        ppoi_field='image_ppoi'
+    )
+    image_ppoi = PPOIField()
 
-    def __str__(self):
-        return self.title
+
 
 
 class Tags(models.Model):

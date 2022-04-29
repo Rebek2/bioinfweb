@@ -8,6 +8,8 @@ media
 
 strona/migrations/
 od_obrazow/migrations/
+__sized__/
+photos/
 
 
 # Backup files # 

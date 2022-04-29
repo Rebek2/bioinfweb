@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "od_obrazow",
     'strona',
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'versatileimagefield',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +129,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 # Neccesary for multimedia
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/media/'
+
