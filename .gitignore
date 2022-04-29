@@ -6,6 +6,10 @@ __pycache__
 db.sqlite3
 media
 
+strona/migrations/
+od_obrazow/migrations/
+
+
 # Backup files # 
 *.bak 
 
