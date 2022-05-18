@@ -7,12 +7,11 @@ from rest_framework import generics
 
 def home(request):
     print('czesc')
-    a = Database()
-    print(a.retrieve_posts_by_date("2022-04-28"))
-    #print(a.retrieve_post_by_title("Testowy"))
-    #a.modify_tag_name_by_id(3,"zmienionyTag")
-    #a.add_tag('#dodanyprzezApi')
-    #print(a.retrieve_tag(1))
+    #a = Database()
+    #a.add_new_post("Test3","Nowości w postach teraz się dzieją","Arjin")
+    #a.change_tags_in_post('#innytag',1)
+    #print(a.retrive_mutlimedia())
+    #print(a.retrive_posts_values())
     return render(request, 'Home.html')
 
 

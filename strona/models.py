@@ -1,9 +1,6 @@
 from django.db import models
-
-
 from versatileimagefield.fields import VersatileImageField, PPOIField
 # Create your models here.
-
 
 
 class Post(models.Model):
@@ -44,8 +41,6 @@ class Multimedia(models.Model):
     image_ppoi = PPOIField()
 
 
-
-
 class Tags(models.Model):
     tagi = models.CharField(max_length= 30)
 
@@ -58,3 +53,9 @@ class Galery(models.Model):
 
     def __str__(self):
         return self.OpisGalerii
+
+class Members(models.Model):
+    user = models.CharField(max_length=60)
+    position = models.CharField(max_length=100)
+    about = models.CharField(max_length=1000)
+    photo_of = models.OneToOneField('Multimedia', on_delete=models.CASCADE)
