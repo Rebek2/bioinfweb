@@ -32,7 +32,11 @@ class Comment(models.Model):
 
 
 class Multimedia(models.Model):
-    post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'photos',blank = True) #bedzie mozna dodawac kilka zdjec do jednego posta.
+    post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'photos',
+                             blank = True, null = True)
+
+    members = models.ForeignKey('Members',on_delete = models.CASCADE,
+                                related_name='member_photo',blank = True,null = True)
     photos = VersatileImageField(
         'Image',
         upload_to='photos/',
@@ -55,7 +59,10 @@ class Galery(models.Model):
         return self.OpisGalerii
 
 class Members(models.Model):
-    user = models.CharField(max_length=60)
-    position = models.CharField(max_length=100)
+    user = models.CharField(max_length=120)
+    position = models.CharField(max_length=150)
     about = models.CharField(max_length=1000)
-    photo_of = models.OneToOneField('Multimedia', on_delete=models.CASCADE)
+    email = models.CharField(max_length = 100)
+
+    def __str__(self):
+        return self.user

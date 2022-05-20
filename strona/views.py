@@ -35,3 +35,6 @@ class TagsViewSet(viewsets.ModelViewSet):
     serializer_class = TagsSerializer
 
 
+class MemberViewSet(viewsets.ModelViewSet):
+    queryset = Members.objects.all()
+    serializer_class = MembersSerializer

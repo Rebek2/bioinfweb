@@ -9,7 +9,7 @@ router.register(r'posts',views.PostViewSet)
 router.register(r'tags',views.TagsViewSet)
 router.register(r'multimedia',views.MultimediaViewSet)
 router.register(r'comment',views.CommentViewSet)
-
+router.register(r'members',views.MemberViewSet)
 
 urlpatterns = [
     path('home/',views.home),
