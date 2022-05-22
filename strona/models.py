@@ -40,7 +40,9 @@ class Multimedia(models.Model):
     photos = VersatileImageField(
         'Image',
         upload_to='photos/',
-        ppoi_field='image_ppoi'
+        ppoi_field='image_ppoi',
+        blank = True,
+        null = True
     )
     image_ppoi = PPOIField()
 

@@ -16,19 +16,17 @@ class MultimediaSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['photos']
 
 
-class CommentSerializer(serializers.HyperlinkedModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id','content','User','post','date']
 
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
-    comments = CommentSerializer(many=True)
-    photos = MultimediaSerializer(many = True)
-
+    photos = MultimediaSerializer(many=True)
     class Meta:
         model = Post
-        fields = ['id','title','content','author','date_created','tag','publish','comments','photos']
+        fields = ['id','title','content','author','date_created','tag','publish','photos']
 
 
 class TagsSerializer(serializers.HyperlinkedModelSerializer):
