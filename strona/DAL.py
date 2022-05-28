@@ -103,8 +103,9 @@ class Database:
         retri = Multimedia.objects.all()
         return retri.photos.url
     #commments
-    #def comments_of_post(self):
-
+    def comments_of_post(self, post_id):
+        retri_comm = Comment.objects.filter(post_id=post_id).values()
+        return retri_comm
 
     def retrive_comments_by_id(self, id):
         retri = Comment.objects.get(id=id)
