@@ -12,11 +12,9 @@ from rest_framework.decorators import api_view
 
 def home(request):
     print('czesc')
-    #a = Database()
-    #a.add_new_post("Test3","Nowości w postach teraz się dzieją","Arjin")
-    #a.change_tags_in_post('#innytag',1)
-    #print(a.retrive_mutlimedia())
-    #print(a.retrive_posts_values())
+    a = Database()
+    a.add_existing_tag_to_post(1,2)
+
     return render(request, 'Home.html')
 
 
