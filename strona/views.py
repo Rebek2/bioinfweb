@@ -8,13 +8,13 @@ from rest_framework.parsers import JSONParser
 
 from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+
 
 def home(request):
     print('czesc')
     a = Database()
-    a.add_existing_tag_to_post(1,2)
-
+    print(a.comments_of_post(1))
     return render(request, 'Home.html')
 
 
@@ -48,3 +48,14 @@ def CommentsOfPost(request,id):
     comments = Comment.objects.all().filter(post_id = id)
     serializer = CommentSerializer(comments,many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def UpdatePost(request, id):
+    print(id)
+    a = Database()
+    a.modify_post_by_id(id, request.data[])
+    print(request.data)
+    print(request.data["author"])
+    return Response("",404)

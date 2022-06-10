@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api-auth/',include('rest_framework.urls')),
     path('comments/post/<int:id>/',views.CommentsOfPost),
+    path('post/<int:id>', views.UpdatePost)
 
 ]
 
