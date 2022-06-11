@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, parser_classes
 def home(request):
     print('czesc')
     a = Database()
-    print(a.comments_of_post(1))
+    print(a.retrieve_post_by_id(2))
     return render(request, 'Home.html')
 
 
@@ -50,14 +50,23 @@ def CommentsOfPost(request,id):
     return Response(serializer.data)
 
 
-
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def UpdatePost(request, id):
-    print(id)
+    #print(id)
+    #print(request.data)
+    #print(request.data["author"], request.data["title"], request.data["content"])
     a = Database()
-    a.modify_post_by_id(id, request.data[])
-    print(request.data)
-    print(request.data["author"])
-    return Response("",404)
+    return Response(a.modify_post_by_id(id, request.data["title"], request.data["content"], request.data["author"]))
 
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def AddPost(request):
+    a = Database()
+    return Response(a.add_new_post(request.data["title"], request.data["content"], request.data["author"]))
+
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def PublishPost(request, id):
+    a = Database()
+    return Response(a.pulish_post(id, bool(request.data["choice"])))

@@ -28,8 +28,15 @@ class Database:
         return retri
 
     def retrieve_post_by_id(self, id):
-        retri = Post.objects.get(id=id).values()
+        retri = Post.objects.filter(id=id).values()
         return retri
+
+    def retrive_posts_values(self):
+        retri = Post.objects.all().values().order_by("id")
+        retri2 = Post.objects.all()[0].tag.all()
+        all_data = (retri, retri2)
+        return all_data
+
 
     def modify_post_content_by_title(self, tittle, content):
         new_con = Post.objects.filter(title=tittle)
@@ -53,6 +60,13 @@ class Database:
         retri.tag.add(new_tags)
         retri.save()
 
+    def add_existing_tag_to_post(self, post_id, tag_id):
+        retri_post = Post.objects.get(id=post_id)
+        retri_tag = Tags.objects.get(id=tag_id)
+        retri_post.tag.add(retri_tag)
+        retri_post.save()
+        retri_tag.save()
+
     def remove_tag_from_post(self, post_id, tag_id):
         retri_post = Post.objects.get(id=post_id)
         retri_tag = Tags.objects.get(id = tag_id)
@@ -60,12 +74,9 @@ class Database:
         retri_post.save()
         retri_tag.save()
 
-    def add_existing_tag_to_post(self, post_id, tag_id):
-        retri_post = Post.objects.get(id=post_id)
-        retri_tag = Tags.objects.get(id=tag_id)
-        retri_post.tag.add(retri_tag)
-        retri_post.save()
-        retri_tag.save()
+    def delete_post_by_id(self, id):
+        instance = Post.objects.get(id=id)
+        instance.delete()
 
     def pulish_post(self, id, choice):
         if choice is True:
@@ -78,21 +89,6 @@ class Database:
             pub_post.save()
         else:
             raise ValueError("Choice must be boolean, True to publish or False to unpublish")
-
-
-    def retrive_posts_values(self):
-        retri = Post.objects.all().values().order_by("id")
-        retri2 = Post.objects.all()[0].tag.all()
-        all_data = (retri, retri2)
-        return all_data
-
-    def retrive_post_by_id(self, id):
-        retri = Post.objects.get(id=id)
-        return retri
-
-    def delete_post_by_id(self, id):
-        instance = Post.objects.get(id=id)
-        instance.delete()
 
     #mutlimedia
     def delete_multimedia_by_id(self, id):
