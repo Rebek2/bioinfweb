@@ -60,6 +60,8 @@ class Galery(models.Model):
     def __str__(self):
         return self.OpisGalerii
 
+
+
 class Members(models.Model):
     user = models.CharField(max_length=120)
     position = models.CharField(max_length=150)

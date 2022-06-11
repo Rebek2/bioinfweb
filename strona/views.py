@@ -50,3 +50,5 @@ def CommentsOfPost(request,id):
     comments = Comment.objects.all().filter(post_id = id)
     serializer = CommentSerializer(comments,many=True)
     return Response(serializer.data)
+
+

@@ -36,9 +36,10 @@ class TagsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class MembersSerializer(serializers.HyperlinkedModelSerializer):
-    member_photo = MultimediaSerializer(many=True)
+
     class Meta:
         model = Members
-        fields = ['id', 'user', 'position', 'about','email', 'member_photo']
+        fields = ['id', 'user', 'position', 'about','email']
+
 
 
