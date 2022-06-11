@@ -17,6 +17,8 @@ urlpatterns = [
     path('api-auth/',include('rest_framework.urls')),
     path('comments/post/<int:id>/',views.CommentsOfPost),
     path('post/<int:id>', views.UpdatePost),
+    path('photos/post/<int:post_id>',views.PhotosOfPost),
+    path('photos/member/<int:id>',views.PhotosOfMember),
 
 ]
 

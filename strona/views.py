@@ -56,8 +56,21 @@ def CommentsOfPost(request,id):
 def UpdatePost(request, id):
     print(id)
     a = Database()
-    a.modify_post_by_id(id, request.data[])
+    a.modify_post_by_id(id, request.data[1])
     print(request.data)
     print(request.data["author"])
     return Response("",404)
 
+
+@api_view(["GET"])
+def PhotosOfPost(request,post_id):
+    photos = Multimedia.objects.all().filter(post_id=post_id)
+
+    serializer = MultimediaSerializer(photos,many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def PhotosOfMember(request,id):
+    photos = Multimedia.objects.all().filter(members_id = id)
+    serializer = MultimediaSerializer(photos, many=True)
+    return Response(serializer.data)
