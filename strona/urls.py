@@ -19,6 +19,9 @@ urlpatterns = [
     path('post/<int:id>', views.UpdatePost),
     path('photos/post/<int:post_id>',views.PhotosOfPost),
     path('photos/member/<int:id>',views.PhotosOfMember),
+    path('post/publish/<int:id>', views.PublishPost),
+    path('post/add-new', views.AddPost)
+
 
 ]
 
