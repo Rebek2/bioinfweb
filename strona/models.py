@@ -35,14 +35,14 @@ class Multimedia(models.Model):
     post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'photos',
                              blank = True, null = True)
 
-    members = models.ForeignKey('Members',on_delete = models.CASCADE,
-                                related_name='member_photo',blank = True,null = True)
+    members = models.ForeignKey('Members', on_delete=models.CASCADE,
+                                related_name='member_photo', blank=True, null=True)
     photos = VersatileImageField(
         'Image',
         upload_to='photos/',
         ppoi_field='image_ppoi',
-        blank = True,
-        null = True
+        blank=True,
+        null=True
     )
     image_ppoi = PPOIField()
 
@@ -66,7 +66,7 @@ class Members(models.Model):
     user = models.CharField(max_length=120)
     position = models.CharField(max_length=150)
     about = models.CharField(max_length=1000)
-    email = models.CharField(max_length = 100)
+    email = models.CharField(max_length = 100, default='none')
 
     def __str__(self):
         return self.user

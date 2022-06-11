@@ -36,10 +36,8 @@ class TagsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class MembersSerializer(serializers.HyperlinkedModelSerializer):
-
     class Meta:
         model = Members
         fields = ['id', 'user', 'position', 'about','email']
-
 
 
