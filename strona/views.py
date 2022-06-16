@@ -53,20 +53,39 @@ def CommentsOfPost(request,id):
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def UpdatePost(request, id):
-    #print(id)
-    #print(request.data)
-    #print(request.data["author"], request.data["title"], request.data["content"])
     a = Database()
-    return Response(a.modify_post_by_id(id, request.data["title"], request.data["content"], request.data["author"]))
+    choice_tags = request.data["tag_handling"]
+    t = request.data["title"]
+    c = request.data["content"]
+    au = request.data["author"]
+    tag_name = request.data["tag_name"]
+    tag_id = int(request.data["tag_id"])
+
+    if choice_tags is "":
+        return Response(a.modify_post_by_id(id, t, c, au))
+
+    elif choice_tags is "add_new":
+        return Response(a.modify_post_by_id(id, t, c, au),
+                        a.add_tag_to_post(tag_name, id))
+
+    elif choice_tags is "add_existing":
+        return Response(a.modify_post_by_id(id, t, c, au),
+                        a.add_existing_tag_to_post(tag_id, id))
+
+    elif choice_tags is "remove":
+        return Response(a.modify_post_by_id(id, t, c, au),
+                        a.remove_tag_from_post(id, tag_id))
+    else:
+        return Response("Possible tag handling command are: '', add_new, add_existing, remove", 404)
 
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def AddPost(request):
     a = Database()
-    a.modify_post_by_id(id, request.data[1])
-    print(request.data)
-    print(request.data["author"])
-    return Response("",404)
+    t = request.data["title"]
+    c = request.data["content"]
+    au = request.data["author"]
+    return Response(a.add_new_post(t, c, au))
 
 
 @api_view(["GET"])
@@ -83,10 +102,11 @@ def PhotosOfMember(request,id):
     return Response(serializer.data)
 
 
-
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def PublishPost(request, id):
     a = Database()
     return Response(a.pulish_post(id, bool(request.data["choice"])))
+
+
 

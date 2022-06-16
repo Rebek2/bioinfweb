@@ -55,10 +55,10 @@ class Database:
         new_post.save()
 
     def add_tag_to_post(self, tag_name, post_id):
-        retri = Post.objects.get(id=post_id)
+        retri_post = Post.objects.get(id=post_id)
         new_tags = Tags.objects.create(tagi=tag_name)
-        retri.tag.add(new_tags)
-        retri.save()
+        retri_post.tag.add(new_tags)
+        retri_post.save()
 
     def add_existing_tag_to_post(self, post_id, tag_id):
         retri_post = Post.objects.get(id=post_id)
