@@ -45,6 +45,7 @@ class Multimedia(models.Model):
         null=True
     )
     image_ppoi = PPOIField()
+    gallery = models.ForeignKey('Galery', on_delete=models.CASCADE, blank=True, null=True)
 
 
 class Tags(models.Model):
@@ -56,6 +57,7 @@ class Tags(models.Model):
 
 class Galery(models.Model):
     OpisGalerii = models.CharField(max_length = 40)
+    date = models.DateTimeField()
 
     def __str__(self):
         return self.OpisGalerii

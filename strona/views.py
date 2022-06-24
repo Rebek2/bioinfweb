@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, parser_classes
 def home(request):
     print('czesc')
     a = Database()
-    print(a.retrieve_post_by_id(2))
+    print(a.comments_of_post(1))
     return render(request, 'Home.html')
 
 
@@ -78,6 +78,7 @@ def UpdatePost(request, id):
     else:
         return Response("Possible tag handling command are: '', add_new, add_existing, remove", 404)
 
+
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def AddPost(request):
@@ -89,15 +90,16 @@ def AddPost(request):
 
 
 @api_view(["GET"])
-def PhotosOfPost(request,post_id):
+def PhotosOfPost(request, post_id):
     photos = Multimedia.objects.all().filter(post_id=post_id)
 
-    serializer = MultimediaSerializer(photos,many=True)
+    serializer = MultimediaSerializer(photos, many=True)
     return Response(serializer.data)
 
+
 @api_view(["GET"])
-def PhotosOfMember(request,id):
-    photos = Multimedia.objects.all().filter(members_id = id)
+def PhotosOfMember(request, id):
+    photos = Multimedia.objects.all().filter(members_id=id)
     serializer = MultimediaSerializer(photos, many=True)
     return Response(serializer.data)
 
@@ -107,6 +109,3 @@ def PhotosOfMember(request,id):
 def PublishPost(request, id):
     a = Database()
     return Response(a.pulish_post(id, bool(request.data["choice"])))
-
-
-
