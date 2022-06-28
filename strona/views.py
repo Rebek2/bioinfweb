@@ -61,18 +61,18 @@ def UpdatePost(request, id):
     tag_name = request.data["tag_name"]
     tag_id = int(request.data["tag_id"])
 
-    if choice_tags is "":
+    if choice_tags == "":
         return Response(a.modify_post_by_id(id, t, c, au))
 
-    elif choice_tags is "add_new":
+    elif choice_tags == "add_new":
         return Response(a.modify_post_by_id(id, t, c, au),
                         a.add_tag_to_post(tag_name, id))
 
-    elif choice_tags is "add_existing":
+    elif choice_tags == "add_existing":
         return Response(a.modify_post_by_id(id, t, c, au),
                         a.add_existing_tag_to_post(tag_id, id))
 
-    elif choice_tags is "remove":
+    elif choice_tags == "remove":
         return Response(a.modify_post_by_id(id, t, c, au),
                         a.remove_tag_from_post(id, tag_id))
     else:

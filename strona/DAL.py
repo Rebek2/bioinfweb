@@ -1,4 +1,4 @@
-from .models import Tags, Post, Multimedia, Comment
+from .models import Tags, Post, Multimedia, Comment, Galery
 
 
 class Database:
@@ -69,7 +69,7 @@ class Database:
 
     def remove_tag_from_post(self, post_id, tag_id):
         retri_post = Post.objects.get(id=post_id)
-        retri_tag = Tags.objects.get(id = tag_id)
+        retri_tag = Tags.objects.get(id=tag_id)
         retri_post.tag.remove(retri_tag)
         retri_post.save()
         retri_tag.save()
@@ -115,4 +115,14 @@ class Database:
         comm = Comment.objects.get(id=id)
         comm.content = content
         comm.save()
+
+    #galeria
+    def delete_from_gelery(self, id_gal, id_photo):
+        gall = Galery.objects.get(id=id_gal)
+        photo_instance= gall.multimedia_set.get(id=id_photo)
+        photo_instance.delete()
+        gall.save()
+        photo_instance.save()
+
+
 
