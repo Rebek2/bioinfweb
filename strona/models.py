@@ -1,6 +1,6 @@
 from django.db import models
 from versatileimagefield.fields import VersatileImageField, PPOIField
-from  datetime import date
+from datetime import date
 # Create your models here.
 
 
@@ -58,7 +58,7 @@ class Tags(models.Model):
 
 class Galery(models.Model):
     OpisGalerii = models.CharField(max_length = 40)
-    date = models.DateTimeField(default=date.today())
+    date = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.OpisGalerii

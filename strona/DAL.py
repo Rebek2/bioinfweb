@@ -124,5 +124,12 @@ class Database:
         gall.save()
         photo_instance.save()
 
+    def add_to_gallery(self, id_gal, id_photo):
+        gall = Galery.objects.get(id=id_gal)
+        ph_ins = Multimedia.objects.get(id=id_photo)
+        gall.multimedia_set.add(ph_ins)
+        gall.save()
+
+
 
 

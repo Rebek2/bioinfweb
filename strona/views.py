@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, parser_classes
 def home(request):
     print('czesc')
     a = Database()
-    print(a.comments_of_post(1))
+    a.add_to_gallery(1,1)
     return render(request, 'Home.html')
 
 
