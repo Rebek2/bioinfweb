@@ -1,5 +1,6 @@
 from django.db import models
 from versatileimagefield.fields import VersatileImageField, PPOIField
+from datetime import date
 # Create your models here.
 
 
@@ -45,6 +46,7 @@ class Multimedia(models.Model):
         null=True
     )
     image_ppoi = PPOIField()
+    gallery = models.ForeignKey('Galery', on_delete=models.CASCADE, blank=True, null=True)
 
 
 class Tags(models.Model):
@@ -56,10 +58,10 @@ class Tags(models.Model):
 
 class Galery(models.Model):
     OpisGalerii = models.CharField(max_length = 40)
+    date = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.OpisGalerii
-
 
 
 class Members(models.Model):
