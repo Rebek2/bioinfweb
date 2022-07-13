@@ -22,17 +22,21 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id','content','User','post','date']
 
 
-class PostSerializer(serializers.HyperlinkedModelSerializer):
-    photos = MultimediaSerializer(many=True)
-    class Meta:
-        model = Post
-        fields = ['id','title','content','author','date_created','tag','publish','photos']
 
-
-class TagsSerializer(serializers.HyperlinkedModelSerializer):
+class TagsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tags
         fields = ['id','tagi']
+
+
+class PostSerializer(serializers.ModelSerializer):
+    tag = TagsSerializer(many = True)
+    photos = MultimediaSerializer(many=True)
+    class Meta:
+        model = Post
+        fields = ['id','title','content','author','date_created','tag','publish','event','photos']
+
+
 
 
 class MembersSerializer(serializers.HyperlinkedModelSerializer):

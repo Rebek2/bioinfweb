@@ -90,3 +90,18 @@ def PublishPost(request, id):
     a = Database()
     return Response(a.pulish_post(id, bool(request.data["choice"])))
 
+@api_view(['GET'])
+def Tags_of_Post(request,id):
+    tags = Tags.objects.all().filter(post = id)
+    serializer = TagsSerializer(tags,many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def Events(request):
+    events = Post.objects.all().filter(event = True)
+    serializer = PostSerializer(events,many=True)
+    return Response(serializer.data)
+
+
+#def FilterByTags(request,tag):
+    #posts = Post.objects.all().filter(tag = tag)
