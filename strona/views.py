@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from .serializer import *
 from rest_framework import viewsets
 from .DAL import Database
@@ -123,9 +123,26 @@ def Events(request):
     serializer = PostSerializer(events,many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def Filter_By_Tags(request,tag):
+    tags = get_object_or_404(Tags,tagi__contains = tag)
+    posts = Post.objects.all().filter(tag = tags.id)
+    serializer = PostSerializer(posts,many=True)
+    if len(serializer.data) > 0:
+        return Response(serializer.data)
+    else:
+        return Response({'Response': 'Brak wyniku wyszukiwania'})
 
-#def FilterByTags(request,tag):
-    #posts = Post.objects.all().filter(tag = tag)
 
-    #return Response(a.pulish_post(id, bool(request.data["choice"])))
+
+
+@api_view(['GET'])
+def Search_query(request,query):
+    posts = Post.objects.all().filter(content__contains = query)
+    serializer = PostSerializer(posts,many=True)
+    if len(serializer.data) > 0:
+        return Response(serializer.data)
+    else:
+        return Response({'Response':'Brak wyniku wyszukiwania'})
+
 
