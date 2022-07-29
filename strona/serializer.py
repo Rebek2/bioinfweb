@@ -32,9 +32,10 @@ class TagsSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     tag = TagsSerializer(many = True)
     photos = MultimediaSerializer(many=True)
+
     class Meta:
         model = Post
-        fields = ['id','title','content','author','date_created','tag','publish','event','photos']
+        fields = ['id','title','content','author','date_created','tag','publish','event','photos','get_absolute_url','get_time_display']
 
 
 

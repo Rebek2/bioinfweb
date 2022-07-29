@@ -12,11 +12,18 @@ class Post(models.Model):
     tag = models.ManyToManyField('Tags',blank = True)
     publish = models.BooleanField(default = False)
     event = models.BooleanField(default = False)
+
     class Meta:
         ordering = ('-date_created',)
 
     def __str__(self):
         return self.title
+
+    def get_time_display(self):
+        return(f'{self.date_created.strftime("%Y %m %d  %H:%M:%S")}')
+
+    def get_absolute_url(self):
+        return(f'{self.title.replace(" ","-")}-{self.date_created.strftime("%Y-%m-%d")}')
 
 
 class Comment(models.Model):
