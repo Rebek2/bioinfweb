@@ -1,4 +1,4 @@
-from .models import Post, Comment, Tags, Multimedia, Members
+from .models import Post, Comment, Tags, Multimedia, Members,Galery
 from rest_framework import serializers
 from versatileimagefield.serializers import VersatileImageFieldSerializer
 
@@ -19,7 +19,7 @@ class MultimediaSerializer(serializers.HyperlinkedModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id','content','User','post','date']
+        fields = ['id','content','User','post','date','get_time']
 
 
 
@@ -35,7 +35,10 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id','title','content','author','date_created','tag','publish','event','photos','get_absolute_url','get_time_display']
+        fields = ['id','title','content',
+                  'author','date_created','tag',
+                  'publish','event','photos',
+                  'get_absolute_url','get_time_display']
 
 
 
@@ -47,3 +50,8 @@ class MembersSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'user', 'position', 'about','email','member_photo']
 
 
+class GallerySerializer(serializers.HyperlinkedModelSerializer):
+    gallery_photos = MultimediaSerializer(many = True)
+    class Meta:
+        model = Galery
+        fields = ['OpisGalerii','gallery_photos','date']

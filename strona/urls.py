@@ -24,7 +24,8 @@ urlpatterns = [
     path('tags/post/<int:id>',views.Tags_of_Post),
     path('events',views.Events),
     path('query/<str:query>',views.Search_query),
-    path('filter/post/<tag>',views.Filter_By_Tags)
+    path('filter/post/<tag>',views.Filter_By_Tags),
+    path('gallery',views.Galleries_view),
 
 
 

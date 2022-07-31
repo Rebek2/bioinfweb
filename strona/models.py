@@ -2,7 +2,7 @@ from django.db import models
 from versatileimagefield.fields import VersatileImageField, PPOIField
 from datetime import date
 # Create your models here.
-
+import datetime
 
 class Post(models.Model):
     title = models.CharField(max_length = 30)
@@ -20,10 +20,11 @@ class Post(models.Model):
         return self.title
 
     def get_time_display(self):
-        return(f'{self.date_created.strftime("%Y %m %d  %H:%M:%S")}')
+        return(f'{self.date_created.strftime("%Y-%m-%d  %H:%M:%S")}')
 
     def get_absolute_url(self):
         return(f'{self.title.replace(" ","-")}-{self.date_created.strftime("%Y-%m-%d")}')
+
 
 
 class Comment(models.Model):
@@ -32,8 +33,14 @@ class Comment(models.Model):
     post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'comments')
     date = models.DateTimeField(auto_now_add = True)
 
+    def get_time(self):
+        return(f'{self.date.strftime("%Y/%m/%d  Godzina:%H:%M:%S")}')
     class Meta:
         ordering = ['-date']
+    #
+    # def when(self):
+    #     when = datetime.datetime.now() - self.date
+    #     return (f'{when.strftime("%Y/%m/%d  Godzina:%H:%M:%S")}')
 
     def __str__(self):
         return self.User
@@ -53,7 +60,8 @@ class Multimedia(models.Model):
         null=True
     )
     image_ppoi = PPOIField()
-    gallery = models.ForeignKey('Galery', on_delete=models.CASCADE, blank=True, null=True)
+    gallery = models.ForeignKey('Galery', on_delete=models.CASCADE, blank=True, null=True,
+                                related_name ='gallery_photos' )
 
 
 class Tags(models.Model):
@@ -79,3 +87,6 @@ class Members(models.Model):
 
     def __str__(self):
         return self.user
+
+
+

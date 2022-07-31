@@ -145,4 +145,8 @@ def Search_query(request,query):
     else:
         return Response({'Response':'Brak wyniku wyszukiwania'})
 
-
+@api_view(['GET'])
+def Galleries_view(request):
+    galleries = Galery.objects.all()
+    serializer = GallerySerializer(galleries,many=True)
+    return Response(serializer.data)
