@@ -1,7 +1,8 @@
 from .models import Post, Comment, Tags, Multimedia, Members,Galery
 from rest_framework import serializers
 from versatileimagefield.serializers import VersatileImageFieldSerializer
-
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 class MultimediaSerializer(serializers.HyperlinkedModelSerializer):
     photos = VersatileImageFieldSerializer(
@@ -30,8 +31,8 @@ class TagsSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    tag = TagsSerializer(many = True)
-    photos = MultimediaSerializer(many=True)
+    tag = TagsSerializer(many = True,required = False)
+    photos = MultimediaSerializer(many=True,required = False)
 
     class Meta:
         model = Post
@@ -44,14 +45,25 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class MembersSerializer(serializers.HyperlinkedModelSerializer):
-    member_photo = MultimediaSerializer(many=True)
+    member_photo = MultimediaSerializer(many=True,required = False)
     class Meta:
         model = Members
         fields = ['id', 'user', 'position', 'about','email','member_photo']
 
 
 class GallerySerializer(serializers.HyperlinkedModelSerializer):
-    gallery_photos = MultimediaSerializer(many = True)
+    gallery_photos = MultimediaSerializer(many = True,required = False)
     class Meta:
         model = Galery
         fields = ['OpisGalerii','gallery_photos','date']
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id','username', 'password']
+        extra_kwargs = {'password': {'write_only': True, 'required': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        Token.objects.create(user=user)
+        return user

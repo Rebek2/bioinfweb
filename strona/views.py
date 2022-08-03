@@ -8,14 +8,20 @@ from rest_framework.parsers import JSONParser
 
 from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, parser_classes
-
+from rest_framework.decorators import api_view, parser_classes,permission_classes,authentication_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 def home(request):
     print('czesc')
     a = Database()
     a.add_to_gallery(1,1)
     return render(request, 'Home.html')
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -118,6 +124,9 @@ def Tags_of_Post(request,id):
     return Response(serializer.data)
 
 @api_view(['GET'])
+
+#@authentication_classes([TokenAuthentication])
+#@permission_classes([IsAuthenticated])
 def Events(request):
     events = Post.objects.all().filter(event = True)
     serializer = PostSerializer(events,many=True)

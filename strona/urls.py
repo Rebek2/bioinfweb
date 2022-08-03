@@ -3,6 +3,9 @@ from . import views
 from rest_framework import routers
 from django.conf.urls.static import static
 from django.conf import settings
+from rest_framework.authtoken.views import obtain_auth_token
+
+
 
 router = routers.DefaultRouter()
 router.register(r'posts',views.PostViewSet)
@@ -10,6 +13,7 @@ router.register(r'tags',views.TagsViewSet)
 router.register(r'multimedia',views.MultimediaViewSet)
 router.register(r'comment',views.CommentViewSet)
 router.register(r'members',views.MemberViewSet)
+router.register(r'users',views.UserViewSet)
 
 urlpatterns = [
     path('home/',views.home),
@@ -26,6 +30,7 @@ urlpatterns = [
     path('query/<str:query>',views.Search_query),
     path('filter/post/<tag>',views.Filter_By_Tags),
     path('gallery',views.Galleries_view),
+    path('auth',obtain_auth_token),
 
 
 
