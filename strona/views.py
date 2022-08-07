@@ -87,6 +87,8 @@ def UpdatePost(request, id):
 
 @api_view(['POST'])
 @parser_classes([JSONParser])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def AddPost(request):
     a = Database()
     t = request.data["title"]
@@ -124,7 +126,6 @@ def Tags_of_Post(request,id):
     return Response(serializer.data)
 
 @api_view(['GET'])
-
 #@authentication_classes([TokenAuthentication])
 #@permission_classes([IsAuthenticated])
 def Events(request):
@@ -159,3 +160,4 @@ def Galleries_view(request):
     galleries = Galery.objects.all()
     serializer = GallerySerializer(galleries,many=True)
     return Response(serializer.data)
+
