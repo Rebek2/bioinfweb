@@ -89,4 +89,18 @@ class Members(models.Model):
         return self.user
 
 
+class Registration(models.Model):
+    nick = models.CharField(max_length=120)
+    name = models.CharField(max_length=200)
+    surname = models.CharField(max_length=200)
+    email = models.CharField(max_length=200)
+    number = models.IntegerField()
+    wydzial = models.CharField(max_length=300)
+    kierunek = models.CharField(max_length=300)
+    rok = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.surname
+
+
 

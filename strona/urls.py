@@ -14,9 +14,12 @@ router.register(r'multimedia',views.MultimediaViewSet)
 router.register(r'comment',views.CommentViewSet)
 router.register(r'members',views.MemberViewSet)
 router.register(r'users',views.UserViewSet)
+router.register(r"galery", views.GaleryVievSet)
+router.register(r"registrtions", views.RegistrationVievSet)
 
 urlpatterns = [
     path('home/',views.home),
+    path('formularz/', views.registration),
     path('api/', include(router.urls)),
     path('api-auth/',include('rest_framework.urls')),
     path('comments/post/<int:id>/',views.CommentsOfPost),

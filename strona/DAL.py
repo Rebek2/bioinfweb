@@ -1,4 +1,4 @@
-from .models import Tags, Post, Multimedia, Comment, Galery
+from .models import Tags, Post, Multimedia, Comment, Galery, Registration
 
 
 class Database:
@@ -130,6 +130,17 @@ class Database:
         gall.multimedia_set.add(ph_ins)
         gall.save()
 
+    #formularz
+    def new_registration(self, nick, name, surname, email, number, wydzial, kierunek, rok):
+        new_member = Registration(nick=nick,
+                                  name=name,
+                                  surname=surname,
+                                  number=number,
+                                  email=email,
+                                  wydzial=wydzial,
+                                  kierunek=kierunek,
+                                  rok=rok)
+        new_member.save()
 
 
 

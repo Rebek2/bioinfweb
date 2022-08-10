@@ -1,4 +1,4 @@
-from .models import Post, Comment, Tags, Multimedia, Members,Galery
+from .models import Post, Comment, Tags, Multimedia, Members, Galery, Registration
 from rest_framework import serializers
 from versatileimagefield.serializers import VersatileImageFieldSerializer
 from django.contrib.auth.models import User
@@ -20,7 +20,7 @@ class MultimediaSerializer(serializers.HyperlinkedModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id','content','User','post','date','get_time']
+        fields = ['id','content','User','post','date']
 
 
 
@@ -50,13 +50,17 @@ class MembersSerializer(serializers.HyperlinkedModelSerializer):
         model = Members
         fields = ['id', 'user', 'position', 'about','email','member_photo']
 
-
 class GallerySerializer(serializers.HyperlinkedModelSerializer):
     gallery_photos = MultimediaSerializer(many = True,required = False)
     class Meta:
         model = Galery
         fields = ['OpisGalerii','gallery_photos','date']
 
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Registration
+        fields = ["nick", "name", "surname", "e_mail", "number", "wydzial", "kierunek", "rok"]
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
