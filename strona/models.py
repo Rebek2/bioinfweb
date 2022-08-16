@@ -10,7 +10,7 @@ class Post(models.Model):
     author = models.CharField(max_length = 10)
     date_created = models.DateTimeField(auto_now_add = True)
     tag = models.ManyToManyField('Tags',blank = True,null = True)
-    publish = models.BooleanField(default = False)
+    publish = models.BooleanField(default = True)
     event = models.BooleanField(default = False)
 
     class Meta:

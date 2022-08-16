@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view, parser_classes
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
-
+import datetime
 from rest_framework.decorators import api_view, parser_classes,permission_classes,authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
@@ -55,7 +55,7 @@ class MemberViewSet(viewsets.ModelViewSet):
 
 class GaleryVievSet(viewsets.ModelViewSet):
     queryset = Galery.objects.all()
-    serializer_class = GalerySerializer
+    serializer_class = GallerySerializer
 
 class RegistrationVievSet(viewsets.ModelViewSet):
     queryset = Registration.objects.all()
@@ -107,6 +107,7 @@ def AddPost(request):
     t = request.data["title"]
     c = request.data["content"]
     au = request.data["author"]
+
     return Response(a.add_new_post(t, c, au))
 
 
@@ -138,8 +139,6 @@ def Tags_of_Post(request,id):
 
 
 @api_view(['GET'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
 def Events(request):
     events = Post.objects.all().filter(event = True)
     serializer = PostSerializer(events,many=True)
@@ -155,6 +154,59 @@ def Filter_By_Tags(request,tag):
         return Response(serializer.data)
     else:
         return Response({'Response': 'Brak wyniku wyszukiwania'})
+
+
+
+@api_view(['GET','DELETE','PUT','POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def Posts(request,id):
+    try:
+        post = Post.objects.get(id=id)
+    except:
+        return Response({'Response':'Brak danych'})
+    if request.method == 'DELETE':
+        post.publish = False
+        post.save()
+
+        posts = Post.objects.all().filter(publish = True)
+        serializer = PostSerializer(posts,many=True)
+
+
+        return Response(serializer.data)
+
+    if request.method == 'PUT':
+
+        serializer = PostSerializer(post,data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+
+
+@api_view(['GET','POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def Add_Posts(request):
+    if request.method == 'POST':
+
+
+        serializer = PostSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+@api_view(['GET'])
+def View_posts(request):
+    posts = Post.objects.all().filter(publish = True)
+    if request.method == 'GET':
+        serializer = PostSerializer(posts,many=True)
+        return Response(serializer.data)
+
+
+
+
+
 
 
 @api_view(['GET'])
@@ -201,3 +253,33 @@ def registration(request):
                         settings.EMAIL_HOST_USER,  # from mail
                         ["michael1@opoczta.pl"],  # to mail
                         ))
+
+
+
+
+@api_view(['DELETE','PUT'])
+def delete(request,id):
+    try:
+        post = Post.objects.get(id=id)
+    except:
+        return Response({'Response':'Brak danych'})
+    if request.method == 'DELETE':
+        post.delete()
+        posts = Post.objects.all().filter(publish=False)
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
+    if request.method =='PUT':
+        post.publish = True
+        post.save()
+        posts = Post.objects.all().filter(publish=False)
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
+
+@api_view(['GET'])
+def DELETED_POSTS(request):
+    posts = Post.objects.all().filter(publish = False)
+    if request.method == 'GET':
+        serializer = PostSerializer(posts,many=True)
+        return Response(serializer.data)

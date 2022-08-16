@@ -34,6 +34,11 @@ urlpatterns = [
     path('filter/post/<tag>',views.Filter_By_Tags),
     path('gallery',views.Galleries_view),
     path('auth',obtain_auth_token),
+    path('post-edit/<int:id>',views.Posts),
+    path('post-add',views.Add_Posts),
+    path('view-posts',views.View_posts),
+    path('posts-deletion/<int:id>',views.delete),
+    path('posts-deleted',views.DELETED_POSTS),
 
 
 
