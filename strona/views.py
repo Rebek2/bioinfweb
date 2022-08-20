@@ -43,6 +43,7 @@ class MultimediaViewSet(viewsets.ModelViewSet):
     serializer_class = MultimediaSerializer
 
 
+
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
@@ -111,11 +112,36 @@ def AddPost(request):
     return Response(a.add_new_post(t, c, au))
 
 
-@api_view(["GET"])
+@api_view(["GET","PUT",'POST'])
 def PhotosOfPost(request, post_id):
     photos = Multimedia.objects.all().filter(post_id=post_id)
-    serializer = MultimediaSerializer(photos, many=True)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        serializer = MultimediaSerializer(photos, many=True)
+        return Response(serializer.data)
+    if request.method == 'POST':
+        serializer = MultimediaSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+        photos = Multimedia.objects.all().filter(post_id = post_id)
+        serializer2 = MultimediaSerializer(photos, many=True)
+        return Response(serializer2.data)
+
+@api_view(["POST"])
+def Photo_add(request,id):
+    if request.method == 'POST':
+
+        post = Post.objects.get(id=id)
+        files = request.FILES.getlist('photos')
+        for file in files:
+            photo_instance = Multimedia(photos = file,post=post)
+            photo_instance.save()
+        photos = Multimedia.objects.all().filter(post=post)
+        serializer = MultimediaSerializer(photos,many=True)
+        return Response(serializer.data)
+
+
+
+
 
 
 @api_view(["GET"])
@@ -147,7 +173,7 @@ def Events(request):
 
 @api_view(['GET'])
 def Filter_By_Tags(request,tag):
-    tags = get_object_or_404(Tags,tagi__contains = tag)
+    tags = Tags.objects.get(tagi = tag)
     posts = Post.objects.all().filter(tag = tags.id)
     serializer = PostSerializer(posts,many=True)
     if len(serializer.data) > 0:
@@ -189,12 +215,26 @@ def Posts(request,id):
 @permission_classes([IsAuthenticated])
 def Add_Posts(request):
     if request.method == 'POST':
+        title = request.data['title']
+        content = request.data['content']
+        author = request.data['author']
+        event = request.data['event']
+
+        if event == 'true':
+            event = True
+        else:
+            event = False
+
+        new_post = Post(title = title,content=content,author=author,event=event)
+        new_post.save()
+        post = Post.objects.get(id=new_post.id)
+        files = request.FILES.getlist('photos')
+        for file in files:
+            photo_instance = Multimedia(photos=file, post=post)
+            photo_instance.save()
+        return Response({'OK':'OK'})
 
 
-        serializer = PostSerializer(data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
 
 @api_view(['GET'])
 def View_posts(request):

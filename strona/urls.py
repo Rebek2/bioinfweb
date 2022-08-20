@@ -39,6 +39,8 @@ urlpatterns = [
     path('view-posts',views.View_posts),
     path('posts-deletion/<int:id>',views.delete),
     path('posts-deleted',views.DELETED_POSTS),
+    path('photo-add-post/<int:id>',views.Photo_add)
+
 
 
 

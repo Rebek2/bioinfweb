@@ -4,7 +4,7 @@ from versatileimagefield.serializers import VersatileImageFieldSerializer
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
-class MultimediaSerializer(serializers.HyperlinkedModelSerializer):
+class MultimediaSerializer(serializers.ModelSerializer):
     photos = VersatileImageFieldSerializer(
         sizes=[
             ('full_size', 'url'),
@@ -14,13 +14,14 @@ class MultimediaSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Multimedia
-        fields = ['photos']
+        fields = ['id','photos','post']
+
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id','content','User','post','date']
+        fields = ['id','content','User','post','date','get_time']
 
 
 
@@ -61,6 +62,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
         fields = ["nick", "name", "surname", "e_mail", "number", "wydzial", "kierunek", "rok"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
