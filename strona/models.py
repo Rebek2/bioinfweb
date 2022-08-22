@@ -9,7 +9,11 @@ class Post(models.Model):
     content = models.TextField(max_length = 10000)
     author = models.CharField(max_length = 10)
     date_created = models.DateTimeField(auto_now_add = True)
-    tag = models.ManyToManyField('Tags',blank = True,null = True)
+
+    tag = models.ManyToManyField('Tags',
+                                 blank = True,
+                                 null = True)
+
     publish = models.BooleanField(default = True)
     event = models.BooleanField(default = False)
 
@@ -30,7 +34,9 @@ class Post(models.Model):
 class Comment(models.Model):
     content = models.TextField(max_length = 1000)
     User = models.CharField(max_length = 10)#to bedzie po prostu do wpisania przez uzytkownika bez potrzeby logowania.
-    post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'comments')
+    post = models.ForeignKey(Post,on_delete = models.CASCADE,
+                             related_name = 'comments')
+
     date = models.DateTimeField(auto_now_add = True)
 
     def get_time(self):
@@ -47,11 +53,19 @@ class Comment(models.Model):
 
 
 class Multimedia(models.Model):
-    post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'photos',
-                             blank = True, null = True)
 
-    members = models.ForeignKey('Members', on_delete=models.CASCADE,
-                                related_name='member_photo', blank=True, null=True)
+    post = models.ForeignKey(Post,
+                             on_delete = models.CASCADE,
+                             related_name = 'photos',
+                             blank = True,
+                             null = True)
+
+    members = models.ForeignKey('Members',
+                                on_delete=models.CASCADE,
+                                related_name='member_photo',
+                                blank=True,
+                                null=True)
+
     photos = VersatileImageField(
         'Image',
         upload_to='photos/',
@@ -60,7 +74,10 @@ class Multimedia(models.Model):
         null=True
     )
     image_ppoi = PPOIField()
-    gallery = models.ForeignKey('Galery', on_delete=models.CASCADE, blank=True, null=True,
+    gallery = models.ForeignKey('Galery',
+                                on_delete=models.CASCADE,
+                                blank=True,
+                                null=True,
                                 related_name ='gallery_photos' )
 
 
@@ -90,6 +107,7 @@ class Members(models.Model):
 
 
 class Registration(models.Model):
+
     nick = models.CharField(max_length=120)
     name = models.CharField(max_length=200)
     surname = models.CharField(max_length=200)

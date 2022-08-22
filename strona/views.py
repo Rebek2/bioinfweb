@@ -126,7 +126,10 @@ def PhotosOfPost(request, post_id):
         serializer2 = MultimediaSerializer(photos, many=True)
         return Response(serializer2.data)
 
+
 @api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def Photo_add(request,id):
     if request.method == 'POST':
 
@@ -229,6 +232,7 @@ def Add_Posts(request):
         new_post.save()
         post = Post.objects.get(id=new_post.id)
         files = request.FILES.getlist('photos')
+
         for file in files:
             photo_instance = Multimedia(photos=file, post=post)
             photo_instance.save()
@@ -268,32 +272,40 @@ def Galleries_view(request):
 @api_view(["POST"])
 @parser_classes([JSONParser])
 def registration(request):
-    nick = request.data["nick"]
-    name = request.data["name"]
-    surname = request.data["surname"]
-    email = request.data["email"]
-    number = request.data["number"]
-    wydzial = request.data["wydzial"]
-    kierunek = request.data["kierunek"]
-    rok = request.data["rok"]
-    template = render_to_string("mail.html",
-                                    {"nick":nick,
-                                     "name":name,
-                                     "surname":surname,
-                                     "email":email,
-                                     "number":number,
-                                     "wydzial":wydzial,
-                                     "kierunek":kierunek,
-                                     "rok":rok})
-    a = Database()
-    a.new_registration(nick, name, surname, email, number, wydzial, kierunek, rok)
-    return Response(send_mail(
-                        "Dane zgłoszeniowe {} {}".format(name, surname), # subject
-                        template,  # message
-                        settings.EMAIL_HOST_USER,  # from mail
-                        ["michael1@opoczta.pl"],  # to mail
-                        ))
+    if request.method == 'POST':
+        nick = request.data["nick"]
+        name = request.data["name"]
+        surname = request.data["surname"]
+        email = request.data["email"]
+        number = request.data["number"]
+        wydzial = request.data["wydzial"]
+        kierunek = request.data["kierunek"]
+        rok = request.data["rok"]
+        template = render_to_string("mail.html",
+                                        {"nick":nick,
+                                         "name":name,
+                                         "surname":surname,
+                                         "email":email,
+                                         "number":number,
+                                         "wydzial":wydzial,
+                                         "kierunek":kierunek,
+                                         "rok":rok})
+        a = Database()
+        a.new_registration(nick,
+                           name,
+                           surname,
+                           email,
+                           number,
+                           wydzial,
+                           kierunek,
+                           rok)
 
+        send_mail("Dane zgłoszeniowe {} {}".format(name, surname), # subject
+                            template,  # message
+                            settings.EMAIL_HOST_USER,  # from mail
+                            ["adamek0222@gmail.com"],)
+
+        return Response({'OK':'OK'})
 
 
 
@@ -318,8 +330,54 @@ def delete(request,id):
 
 
 @api_view(['GET'])
-def DELETED_POSTS(request):
+def GET_DELETED_POSTS(request):
     posts = Post.objects.all().filter(publish = False)
     if request.method == 'GET':
         serializer = PostSerializer(posts,many=True)
+        return Response(serializer.data)
+
+@api_view(['DELETE'])
+def Delete_photo(request,photo_id,post_id):
+    try:
+        photo_instance = Multimedia.objects.get(id=photo_id)
+
+    except:
+        return Response({'Response': 'No data'})
+    if request.method=='DELETE':
+        photo_instance.delete()
+        photos = Multimedia.objects.all().filter(post=post_id)
+        serializer = MultimediaSerializer(photos,many=True)
+        return Response(serializer.data)
+
+
+
+@api_view(['POST','GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def Members_Post(request):
+    members = Members.objects.all()
+    if request.method == 'POST':
+
+        serializer = MembersSerializer(data=request.data)
+        if serializer.is_valid():
+            id = serializer.save()
+            file = request.FILES['member_photo']
+            photo = Multimedia(photos=file,members = id)
+            photo.save()
+
+        serializer = MembersSerializer(members,many=True)
+        return Response(serializer.data)
+
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def Delete_Member(request,id):
+    try:
+        member = Members.objects.get(id=id)
+    except:
+        return Response({'Response': 'Brak danych'})
+    if request.method == "DELETE":
+        member.delete()
+        members = Members.objects.all()
+        serializer = MembersSerializer(members,many=True)
         return Response(serializer.data)

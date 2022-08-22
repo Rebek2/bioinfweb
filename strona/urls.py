@@ -38,8 +38,11 @@ urlpatterns = [
     path('post-add',views.Add_Posts),
     path('view-posts',views.View_posts),
     path('posts-deletion/<int:id>',views.delete),
-    path('posts-deleted',views.DELETED_POSTS),
-    path('photo-add-post/<int:id>',views.Photo_add)
+    path('posts-deleted',views.GET_DELETED_POSTS),
+    path('photo-add-post/<int:id>',views.Photo_add),
+    path('photo-delete/<int:photo_id>/post/<int:post_id>',views.Delete_photo),
+    path('members-add',views.Members_Post),
+    path('members-delete/<int:id>',views.Delete_Member),
 
 
 
