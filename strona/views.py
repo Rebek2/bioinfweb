@@ -32,6 +32,22 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
+@api_view(['GET'])
+def get_post(request,id):
+    try:
+        post = Post.objects.get(id=id)
+    except:
+        return Response({'Response':'No data'})
+
+    if request.method == 'GET':
+        post.add_view()
+        post.save()
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+
+
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
@@ -41,7 +57,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 class MultimediaViewSet(viewsets.ModelViewSet):
     queryset = Multimedia.objects.all()
     serializer_class = MultimediaSerializer
-
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -381,3 +396,37 @@ def Delete_Member(request,id):
         members = Members.objects.all()
         serializer = MembersSerializer(members,many=True)
         return Response(serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def Get_Comments(request):
+    comments = Comment.objects.all()
+    serializer = CommentSerializer(comments,many=True)
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def Edit_Comment(request,id):
+    try:
+        comment = Comment.objects.get(id=id)
+    except:
+        return Response({'Response':'No data'})
+
+    if request.method == 'DELETE':
+        comment.delete()
+        comments = Comment.objects.all()
+        serializer = CommentSerializer(comments,many=True)
+        return Response(serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_club_members(request):
+    members = Registration.objects.all()
+    serializer = RegistrationSerializer(members,many=True)
+    return Response(serializer.data)

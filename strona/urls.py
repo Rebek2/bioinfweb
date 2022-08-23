@@ -8,7 +8,6 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 
 router = routers.DefaultRouter()
-router.register(r'posts',views.PostViewSet)
 router.register(r'tags',views.TagsViewSet)
 router.register(r'multimedia',views.MultimediaViewSet)
 router.register(r'comment',views.CommentViewSet)
@@ -43,10 +42,10 @@ urlpatterns = [
     path('photo-delete/<int:photo_id>/post/<int:post_id>',views.Delete_photo),
     path('members-add',views.Members_Post),
     path('members-delete/<int:id>',views.Delete_Member),
-
-
-
-
+    path('comments-get',views.Get_Comments),
+    path('comments-delete/<int:id>',views.Edit_Comment),
+    path('get-club-members',views.get_club_members),
+    path('api/posts/<int:id>/',views.get_post)
 
 ]
 

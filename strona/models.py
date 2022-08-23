@@ -16,6 +16,7 @@ class Post(models.Model):
 
     publish = models.BooleanField(default = True)
     event = models.BooleanField(default = False)
+    views = models.BigIntegerField(default = 0)
 
     class Meta:
         ordering = ('-date_created',)
@@ -29,18 +30,24 @@ class Post(models.Model):
     def get_absolute_url(self):
         return(f'{self.title.replace(" ","-")}-{self.date_created.strftime("%Y-%m-%d")}')
 
-
+    def add_view(self):
+        self.views = self.views + 1
 
 class Comment(models.Model):
     content = models.TextField(max_length = 1000)
     User = models.CharField(max_length = 10)#to bedzie po prostu do wpisania przez uzytkownika bez potrzeby logowania.
-    post = models.ForeignKey(Post,on_delete = models.CASCADE,
+
+    post = models.ForeignKey(Post,
+                             null=True,
+                             blank = True,
+                             on_delete = models.SET_NULL,
+
                              related_name = 'comments')
 
     date = models.DateTimeField(auto_now_add = True)
 
     def get_time(self):
-        return(f'{self.date.strftime("%Y/%m/%d  Godzina:%H:%M:%S")}')
+        return(f'{self.date.strftime("%Y-%m-%d %H:%M:%S")}')
     class Meta:
         ordering = ['-date']
     #
@@ -112,13 +119,16 @@ class Registration(models.Model):
     name = models.CharField(max_length=200)
     surname = models.CharField(max_length=200)
     email = models.CharField(max_length=200)
-    number = models.IntegerField()
+    number = models.CharField(max_length=12)
     wydzial = models.CharField(max_length=300)
     kierunek = models.CharField(max_length=300)
     rok = models.CharField(max_length=50)
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.surname
 
+    def get_time(self):
+        return(f'{self.date.strftime("%Y-%m-%d %H:%M:%S")}')
 
 

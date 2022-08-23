@@ -14,7 +14,7 @@ class MultimediaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Multimedia
-        fields = ['id','photos','post']
+        fields = ['id','photos','post','gallery']
 
 
 
@@ -40,7 +40,8 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ['id','title','content',
                   'author','date_created','tag',
                   'publish','event','photos',
-                  'get_absolute_url','get_time_display']
+                  'get_absolute_url','get_time_display',
+                  'views',]
 
 
 
@@ -61,7 +62,7 @@ class GallerySerializer(serializers.HyperlinkedModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
-        fields = ["nick", "name", "surname", "e_mail", "number", "wydzial", "kierunek", "rok"]
+        fields = ["nick", "name", "surname", "email", "number", "wydzial", "kierunek", "rok",'get_time']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -74,3 +75,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         Token.objects.create(user=user)
         return user
+
+
+
+
