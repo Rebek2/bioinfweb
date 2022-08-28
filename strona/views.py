@@ -430,3 +430,58 @@ def get_club_members(request):
     members = Registration.objects.all()
     serializer = RegistrationSerializer(members,many=True)
     return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def Delete_galleryPhoto(request,id):
+    try:
+        photo_instance = Multimedia.objects.get(id=id)
+    except:
+        return Response({'Response':'No object'})
+
+    if request.method == 'DELETE':
+        photo_instance.delete()
+        galleries = Galery.objects.all()
+        serializer = GallerySerializer(galleries, many=True)
+        return Response(serializer.data)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def add_gallery(request):
+    if request.method == 'POST':
+        title = request.data['title']
+        gallery = Galery(OpisGalerii = title)
+        gallery.save()
+        gallery_instance = Galery.objects.get(id=gallery.id)
+        files = request.FILES.getlist('photos')
+        for file in files:
+            photo_instance = Multimedia(photos=file,gallery=gallery_instance)
+            photo_instance.save()
+
+        return Response({'Ok':'Ok'})
+
+@api_view(['DELETE','POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def Delete_gallery(request,id):
+    try:
+        gallery = Galery.objects.get(id=id)
+    except:
+        return Response({'Response':'No object in db'})
+    if request.method == 'DELETE':
+        gallery.delete()
+        photos = Galery.objects.all()
+        serializer = GallerySerializer(photos,many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        files = request.FILES.getlist('photos')
+        for file in files:
+            photo_instance = Multimedia(gallery=gallery,photos=file)
+            photo_instance.save()
+        photos = Galery.objects.all()
+        serializer = GallerySerializer(photos,many=True)
+        return Response(serializer.data)

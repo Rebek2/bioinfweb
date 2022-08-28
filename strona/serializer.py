@@ -56,7 +56,7 @@ class GallerySerializer(serializers.HyperlinkedModelSerializer):
     gallery_photos = MultimediaSerializer(many = True,required = False)
     class Meta:
         model = Galery
-        fields = ['OpisGalerii','gallery_photos','date']
+        fields = ['id','OpisGalerii','gallery_photos','date']
 
 
 class RegistrationSerializer(serializers.ModelSerializer):

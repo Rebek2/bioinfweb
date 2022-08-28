@@ -45,7 +45,10 @@ urlpatterns = [
     path('comments-get',views.Get_Comments),
     path('comments-delete/<int:id>',views.Edit_Comment),
     path('get-club-members',views.get_club_members),
-    path('api/posts/<int:id>/',views.get_post)
+    path('api/posts/<int:id>/',views.get_post),
+    path('delete-gallery-photo/<int:id>',views.Delete_galleryPhoto),
+    path('gallery-add',views.add_gallery),
+    path('gallery-delete/<int:id>',views.Delete_gallery),
 
 ]
 
