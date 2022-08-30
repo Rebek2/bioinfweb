@@ -49,6 +49,7 @@ urlpatterns = [
     path('delete-gallery-photo/<int:id>',views.Delete_galleryPhoto),
     path('gallery-add',views.add_gallery),
     path('gallery-delete/<int:id>',views.Delete_gallery),
+    path('tags-operations',views.getTags),
 
 ]
 

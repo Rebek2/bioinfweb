@@ -237,20 +237,32 @@ def Add_Posts(request):
         content = request.data['content']
         author = request.data['author']
         event = request.data['event']
-
+        tags = request.data['tag']
+        formated = tags.split(',')
+        print(formated)
         if event == 'true':
             event = True
         else:
             event = False
 
         new_post = Post(title = title,content=content,author=author,event=event)
+
         new_post.save()
+
         post = Post.objects.get(id=new_post.id)
         files = request.FILES.getlist('photos')
+
+        for tag in formated:
+            tagg = Tags.objects.get(tagi=tag)
+            print(tag)
+            tagg.post_set.add(post)
 
         for file in files:
             photo_instance = Multimedia(photos=file, post=post)
             photo_instance.save()
+
+
+
         return Response({'OK':'OK'})
 
 
@@ -484,4 +496,21 @@ def Delete_gallery(request,id):
             photo_instance.save()
         photos = Galery.objects.all()
         serializer = GallerySerializer(photos,many=True)
+        return Response(serializer.data)
+
+@api_view(['GET','POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def getTags(request):
+    if request.method == 'GET':
+        tags = Tags.objects.all()
+        serializer = TagsSerializer(tags,many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        name = request.data['tagi']
+        tag_instance = Tags(tagi=name)
+        tag_instance.save()
+        tags = Tags.objects.all()
+        serializer = TagsSerializer(tags,many=True)
         return Response(serializer.data)
