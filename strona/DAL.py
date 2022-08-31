@@ -60,6 +60,7 @@ class Database:
 
     def add_new_post(self, title, content, author, choice, tagi_name):
         # jak tag istnieje to zamiast dodac nowy pobiera z bazy
+        #
         def do_exist_tag(tag):
             fetch_tags = Tags.objects.all()
             list_of_tags = list(str(item.tagi) for item in fetch_tags)
