@@ -145,5 +145,5 @@ PORT_NUMBER = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = ""#mail from
-EMAIL_HOST_PASSWORD = ""#passwarod
+EMAIL_HOST_PASSWORD = "Mari_mina&%1"#passwarod:Mari_mina&%1
 

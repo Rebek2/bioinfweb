@@ -125,9 +125,11 @@ def AddPost(request):
     au = request.data["author"]
     tg = request.data["tagi"]
     ch = request.data["choice"]
-    return Response(a.add_new_post(t, c, au, ch, tg))
-
-
+    return Response(a.add_new_post(t, c, au, ch, tg), send_mail("subject",
+                                                         "message",
+                                                          settings.EMAIL_HOST_USER,
+                                                          [a.return_mails_of_users()])
+)
 
 @api_view(["GET","PUT",'POST'])
 def PhotosOfPost(request, post_id):

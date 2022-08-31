@@ -189,6 +189,10 @@ class Database:
                                   rok=rok)
         new_member.save()
 
+    def return_mails_of_users(self):
+        data = Registration.objects.all()
+        return list(data.email)
+
 
     def list_of_members(self):
         members = Registration.objects.values()
