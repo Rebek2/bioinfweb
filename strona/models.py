@@ -1,15 +1,18 @@
 from django.db import models
 from versatileimagefield.fields import VersatileImageField, PPOIField
-
+from datetime import date
+# Create your models here.
+import datetime
 
 class Post(models.Model):
     title = models.CharField(max_length = 30)
     content = models.TextField(max_length = 10000)
     author = models.CharField(max_length = 10)
     date_created = models.DateTimeField(auto_now_add = True)
-    tag = models.ManyToManyField('Tags', blank = True)
-    publish = models.BooleanField(default = False)
+    tag = models.ManyToManyField('Tags', blank = True, null = True)
+    publish = models.BooleanField(default = True)
     event = models.BooleanField(default = False)
+    views = models.BigIntegerField(default = 0)
 
     class Meta:
         ordering = ('-date_created',)
@@ -23,16 +26,24 @@ class Post(models.Model):
     def get_absolute_url(self):
         return(f'{self.title.replace(" ","-")}-{self.date_created.strftime("%Y-%m-%d")}')
 
-
+    def add_view(self):
+        self.views = self.views + 1
 
 class Comment(models.Model):
     content = models.TextField(max_length = 1000)
     User = models.CharField(max_length = 10)#to bedzie po prostu do wpisania przez uzytkownika bez potrzeby logowania.
-    post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'comments')
+
+    post = models.ForeignKey(Post,
+                             null=True,
+                             blank = True,
+                             on_delete = models.SET_NULL,
+
+                             related_name = 'comments')
+
     date = models.DateTimeField(auto_now_add = True)
 
     def get_time(self):
-        return(f'{self.date.strftime("%Y/%m/%d  Godzina:%H:%M:%S")}')
+        return(f'{self.date.strftime("%Y-%m-%d %H:%M:%S")}')
     class Meta:
         ordering = ['-date']
     #
@@ -45,11 +56,19 @@ class Comment(models.Model):
 
 
 class Multimedia(models.Model):
-    post = models.ForeignKey(Post,on_delete = models.CASCADE,related_name = 'photos',
-                             blank = True, null = True)
 
-    members = models.ForeignKey('Members', on_delete=models.CASCADE,
-                                related_name='member_photo', blank=True, null=True)
+    post = models.ForeignKey(Post,
+                             on_delete = models.CASCADE,
+                             related_name = 'photos',
+                             blank = True,
+                             null = True)
+
+    members = models.ForeignKey('Members',
+                                on_delete=models.CASCADE,
+                                related_name='member_photo',
+                                blank=True,
+                                null=True)
+
     photos = VersatileImageField(
         'Image',
         upload_to='photos/',
@@ -58,7 +77,10 @@ class Multimedia(models.Model):
         null=True
     )
     image_ppoi = PPOIField()
-    gallery = models.ForeignKey('Galery', on_delete=models.CASCADE, blank=True, null=True,
+    gallery = models.ForeignKey('Galery',
+                                on_delete=models.CASCADE,
+                                blank=True,
+                                null=True,
                                 related_name ='gallery_photos' )
 
 
@@ -88,17 +110,21 @@ class Members(models.Model):
 
 
 class Registration(models.Model):
+
     nick = models.CharField(max_length=120)
     name = models.CharField(max_length=200)
     surname = models.CharField(max_length=200)
     email = models.CharField(max_length=200)
-    number = models.IntegerField()
+    number = models.CharField(max_length=12)
     wydzial = models.CharField(max_length=300)
     kierunek = models.CharField(max_length=300)
     rok = models.CharField(max_length=50)
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.surname
 
+    def get_time(self):
+        return(f'{self.date.strftime("%Y-%m-%d %H:%M:%S")}')
 
 

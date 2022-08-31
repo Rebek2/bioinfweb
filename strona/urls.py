@@ -8,7 +8,6 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 
 router = routers.DefaultRouter()
-router.register(r'posts',views.PostViewSet)
 router.register(r'tags',views.TagsViewSet)
 router.register(r'multimedia',views.MultimediaViewSet)
 router.register(r'comment',views.CommentViewSet)
@@ -34,9 +33,23 @@ urlpatterns = [
     path('filter/post/<tag>',views.Filter_By_Tags),
     path('gallery',views.Galleries_view),
     path('auth',obtain_auth_token),
-
-
-
+    path('post-edit/<int:id>',views.Posts),
+    path('post-add',views.Add_Posts),
+    path('view-posts',views.View_posts),
+    path('posts-deletion/<int:id>',views.delete),
+    path('posts-deleted',views.GET_DELETED_POSTS),
+    path('photo-add-post/<int:id>',views.Photo_add),
+    path('photo-delete/<int:photo_id>/post/<int:post_id>',views.Delete_photo),
+    path('members-add',views.Members_Post),
+    path('members-delete/<int:id>',views.Delete_Member),
+    path('comments-get',views.Get_Comments),
+    path('comments-delete/<int:id>',views.Edit_Comment),
+    path('get-club-members',views.get_club_members),
+    path('api/posts/<int:id>/',views.get_post),
+    path('delete-gallery-photo/<int:id>',views.Delete_galleryPhoto),
+    path('gallery-add',views.add_gallery),
+    path('gallery-delete/<int:id>',views.Delete_gallery),
+    path('tags-operations',views.getTags),
 
 ]
 
