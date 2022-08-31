@@ -1,15 +1,13 @@
 from django.db import models
 from versatileimagefield.fields import VersatileImageField, PPOIField
-from datetime import date
-# Create your models here.
-import datetime
+
 
 class Post(models.Model):
     title = models.CharField(max_length = 30)
     content = models.TextField(max_length = 10000)
     author = models.CharField(max_length = 10)
     date_created = models.DateTimeField(auto_now_add = True)
-    tag = models.ManyToManyField('Tags',blank = True,null = True)
+    tag = models.ManyToManyField('Tags', blank = True)
     publish = models.BooleanField(default = False)
     event = models.BooleanField(default = False)
 

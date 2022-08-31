@@ -7,11 +7,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, parser_classes
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
-
 from rest_framework.decorators import api_view, parser_classes,permission_classes,authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
@@ -19,7 +17,8 @@ from rest_framework.authentication import TokenAuthentication
 def home(request):
     print('czesc')
     a = Database()
-    a.add_to_gallery(1,1)
+    a.add_new_post("Testowy", "belkot o dziwnych rzeczach nie zwiazanych z strona", "Mrjm", False, "#1 #2")
+    print(a.do_exi("#1"))
     return render(request, 'Home.html')
 
 
@@ -55,7 +54,7 @@ class MemberViewSet(viewsets.ModelViewSet):
 
 class GaleryVievSet(viewsets.ModelViewSet):
     queryset = Galery.objects.all()
-    serializer_class = GalerySerializer
+    serializer_class = GallerySerializer
 
 class RegistrationVievSet(viewsets.ModelViewSet):
     queryset = Registration.objects.all()
@@ -107,7 +106,9 @@ def AddPost(request):
     t = request.data["title"]
     c = request.data["content"]
     au = request.data["author"]
-    return Response(a.add_new_post(t, c, au))
+    tg = request.data["tagi"]
+    ch = request.data["choice"]
+    return Response(a.add_new_post(t, c, au, ch, tg))
 
 
 @api_view(["GET"])

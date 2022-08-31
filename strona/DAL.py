@@ -50,9 +50,55 @@ class Database:
         new_con.author = author
         new_con.save()
 
-    def add_new_post(self, title, content, author):
-        new_post = Post(title=title, content=content, author=author)
-        new_post.save()
+    def do_exi(self, tag):
+        fetch_tags = Tags.objects.all()
+        list_of_tags = list(str(item.tagi) for item in fetch_tags)
+        if str(tag) in list_of_tags:
+            return 1
+        if str(tag) not in list_of_tags:
+            return 0
+
+    def add_new_post(self, title, content, author, choice, tagi_name):
+        # jak tag istnieje to zamiast dodac nowy pobiera z bazy
+        def do_exist_tag(tag):
+            fetch_tags = Tags.objects.all()
+            list_of_tags = list(str(item.tagi) for item in fetch_tags)
+            if str(tag) in list_of_tags:
+                return 1
+            if str(tag) not in list_of_tags:
+                return 0
+
+        tagi_name = tagi_name.split(" ")
+        print(tagi_name)
+        if choice == True:
+            new_post = Post(title=title, content=content, author=author, publish=choice)
+            new_post.save()
+            for item in range(len(tagi_name)):
+                print(do_exist_tag(item))
+                if do_exist_tag(tagi_name[item]) == 1:
+                    fetch_tag = Tags.objects.get(tagi=tagi_name[item])
+                    new_post.tag.add(fetch_tag)
+                    new_post.save()
+                elif do_exist_tag(tagi_name[item]) == 0:
+                    new_tag = Tags.objects.create(tagi=tagi_name[item])
+                    new_tag.save()
+                    new_post.tag.add(new_tag)
+                    new_post.save()
+
+        elif choice == False:
+            new_post = Post(title=title, content=content, author=author, publish=choice)
+            new_post.save()
+            for item in range(len(tagi_name)):
+                if do_exist_tag(tagi_name[item]) == 1:
+                    fetch_tag = Tags.objects.get(tagi=tagi_name[item])
+                    new_post.tag.add(fetch_tag)
+                    new_post.save()
+                elif do_exist_tag(tagi_name[item]) == 0:
+                    new_tag = Tags.objects.create(tagi=tagi_name[item])
+                    new_tag.save()
+                    new_post.tag.add(new_tag)
+                    new_post.save()
+
 
     def add_tag_to_post(self, tag_name, post_id):
         retri_post = Post.objects.get(id=post_id)
@@ -141,6 +187,11 @@ class Database:
                                   kierunek=kierunek,
                                   rok=rok)
         new_member.save()
+
+
+    def list_of_members(self):
+        members = Registration.objects.values()
+        return list(members)
 
 
 
