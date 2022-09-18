@@ -245,7 +245,6 @@ def Add_Posts(request):
         event = request.data['event']
         tags = request.data['tag']
         formated = tags.split(',')
-        print(formated)
         if event == 'true':
             event = True
         else:
@@ -519,4 +518,20 @@ def getTags(request):
         tag_instance.save()
         tags = Tags.objects.all()
         serializer = TagsSerializer(tags,many=True)
+        return Response(serializer.data)
+
+
+@api_view(['GET'])
+def latest_posts(request):
+    if request.method == 'GET':
+        posts = Post.objects.all().filter(publish=True)[:5] #5 last elements from db
+        serializer = PostSerializer(posts,many=True)
+        return Response(serializer.data)
+
+@api_view(['GET'])
+def most_viewed(request):
+    if request.method == 'GET':
+        posts = Post.objects.all().filter(publish =True).order_by('-views')[:5]
+
+        serializer = PostSerializer(posts,many=True)
         return Response(serializer.data)

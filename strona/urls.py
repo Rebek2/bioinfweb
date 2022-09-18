@@ -50,6 +50,8 @@ urlpatterns = [
     path('gallery-add',views.add_gallery),
     path('gallery-delete/<int:id>',views.Delete_gallery),
     path('tags-operations',views.getTags),
+    path('latest-posts',views.latest_posts),
+    path('most-viewed',views.most_viewed)
 
 ]
 
