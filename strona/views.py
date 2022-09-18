@@ -123,9 +123,13 @@ def AddPost(request):
     t = request.data["title"]
     c = request.data["content"]
     au = request.data["author"]
-
-    return Response(a.add_new_post(t, c, au))
-
+    tg = request.data["tagi"]
+    ch = request.data["choice"]
+    return Response(a.add_new_post(t, c, au, ch, tg), send_mail("subject",
+                                                         "message",
+                                                          settings.EMAIL_HOST_USER,
+                                                          [a.return_mails_of_users()])
+)
 
 @api_view(["GET","PUT",'POST'])
 def PhotosOfPost(request, post_id):
@@ -183,6 +187,8 @@ def Tags_of_Post(request,id):
 
 
 @api_view(['GET'])
+#@authentication_classes([TokenAuthentication])
+#@permission_classes([IsAuthenticated])
 def Events(request):
     events = Post.objects.all().filter(event = True)
     serializer = PostSerializer(events,many=True)

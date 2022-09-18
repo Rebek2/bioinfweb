@@ -147,3 +147,5 @@ EMAIL_USE_SSL = False
 EMAIL_HOST_USER = "bioskn.messenger@gmail.com"#mail from
 EMAIL_HOST_PASSWORD = "Mari_mina&%1"#passwarod
 
+
+

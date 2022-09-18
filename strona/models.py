@@ -9,11 +9,7 @@ class Post(models.Model):
     content = models.TextField(max_length = 10000)
     author = models.CharField(max_length = 10)
     date_created = models.DateTimeField(auto_now_add = True)
-
-    tag = models.ManyToManyField('Tags',
-                                 blank = True,
-                                 null = True)
-
+    tag = models.ManyToManyField('Tags', blank = True, null = True)
     publish = models.BooleanField(default = True)
     event = models.BooleanField(default = False)
     views = models.BigIntegerField(default = 0)
