@@ -15,6 +15,10 @@ import datetime
 from rest_framework.decorators import api_view, parser_classes,permission_classes,authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.pagination import PageNumberPagination
+from rest_framework import generics
+
+
 
 def home(request):
     print('czesc')
@@ -269,16 +273,24 @@ def Add_Posts(request):
 
 
         return Response({'OK':'OK'})
+    return Response({'OK': 'OK'})
+
+
 
 
 
 @api_view(['GET'])
 def View_posts(request):
-    posts = Post.objects.all().filter(publish = True)
-    if request.method == 'GET':
-        serializer = PostSerializer(posts,many=True)
-        return Response(serializer.data)
 
+    if request.method == 'GET':
+        paginator = PageNumberPagination()
+        paginator.page_size = 3
+
+        posts = Post.objects.all().filter(publish=True)
+        result_page = paginator.paginate_queryset(posts, request)
+
+        serializer = PostSerializer(result_page,many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 
@@ -305,7 +317,7 @@ def Galleries_view(request):
 @parser_classes([JSONParser])
 def registration(request):
     if request.method == 'POST':
-        nick = request.data["nick"]
+        nick = request.data['nick']
         name = request.data["name"]
         surname = request.data["surname"]
         email = request.data["email"]

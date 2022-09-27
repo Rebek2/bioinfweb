@@ -111,7 +111,7 @@ class Members(models.Model):
 
 class Registration(models.Model):
 
-    nick = models.CharField(max_length=120)
+    nick = models.CharField(max_length=120, blank = True,null=True)
     name = models.CharField(max_length=200)
     surname = models.CharField(max_length=200)
     email = models.CharField(max_length=200)
