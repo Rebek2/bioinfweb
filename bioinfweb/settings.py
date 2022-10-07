@@ -144,8 +144,13 @@ EMAIL_HOST = 'smtp.gmail.com'
 PORT_NUMBER = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = "bioskn.messenger@gmail.com"#mail from
-EMAIL_HOST_PASSWORD = "Mari_mina&%1"#passwarod
+EMAIL_HOST_USER = "bioskn.messenger@gmail.com"
+EMAIL_HOST_PASSWORD = "doqrkrqmxxlbjffy"
+
+#facebook_posting
+PAGE_ID = "111016638421384"  # 101267959409517
+FACEBOOK_ACCESS_TOKEN = "EAAQPd7ZC7vG0BAOvmZAIoAczmU25kOw0VNFEZBkZC4AgQixLRiM2MtByZBO1tr23ZB22NZBZBwTg06rRqJ32ZA8rqKW4gG9W3CpmoZAHynhRsUYArGOrJZAPdWH7d1zKsZCOTGtIn5ZBOH6wQx400zJ2b9aZBnYMxKRjJvbxxduZBvZAJoS856ZCudzhUejDc"
+
 
 
 

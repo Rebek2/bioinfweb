@@ -19,11 +19,27 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics
 
 
+import facebook
+def automation(title, content, author, tagi_name, files):
+    #page_id = settings.PAGE_ID
+    files_raw = []
+    for file in files:
+        files_raw.append(file)
+
+    facebook_access_token = settings.FACEBOOK_ACCESS_TOKEN
+    msg = "{}\n{}\n{}\n{}".format(title,content, tagi_name, author)
+    driver = facebook.GraphAPI(facebook_access_token)
+    driver.put_photo(image=open("media\\photos\\{}".format(str(files_raw[0])), "rb"), message=msg)
+
+
+
 
 def home(request):
     print('czesc')
     a = Database()
-    a.add_to_gallery(1,1)
+    nowe = a.add_new_post("Dla działającej apki", "Jakieś zblurowane bzdruy", "Arjin", False, "", True)
+    print(nowe)
+    #automation("Testowy3", "Beep boop", "Arjin", "#1", "blackeczka1.jpg")
     return render(request, 'Home.html')
 
 
@@ -118,22 +134,6 @@ def UpdatePost(request, id):
         return Response("Possible tag handling command are: '', add_new, add_existing, remove", 404)
 
 
-@api_view(['POST'])
-@parser_classes([JSONParser])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def AddPost(request):
-    a = Database()
-    t = request.data["title"]
-    c = request.data["content"]
-    au = request.data["author"]
-    tg = request.data["tagi"]
-    ch = request.data["choice"]
-    return Response(a.add_new_post(t, c, au, ch, tg), send_mail("subject",
-                                                         "message",
-                                                          settings.EMAIL_HOST_USER,
-                                                          [a.return_mails_of_users()])
-)
 
 @api_view(["GET","PUT",'POST'])
 def PhotosOfPost(request, post_id):
@@ -166,10 +166,6 @@ def Photo_add(request,id):
         return Response(serializer.data)
 
 
-
-
-
-
 @api_view(["GET"])
 def PhotosOfMember(request, id):
     photos = Multimedia.objects.all().filter(members_id=id)
@@ -191,8 +187,8 @@ def Tags_of_Post(request,id):
 
 
 @api_view(['GET'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def Events(request):
     events = Post.objects.all().filter(event = True)
     serializer = PostSerializer(events,many=True)
@@ -242,40 +238,43 @@ def Posts(request,id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def Add_Posts(request):
+    base = Database()
     if request.method == 'POST':
         title = request.data['title']
         content = request.data['content']
         author = request.data['author']
         event = request.data['event']
         tags = request.data['tag']
-        formated = tags.split(',')
         if event == 'true':
             event = True
         else:
             event = False
 
-        new_post = Post(title = title,content=content,author=author,event=event)
+        new_post = base.add_new_post(title, content, author, True, tags, event)
 
-        new_post.save()
-
-        post = Post.objects.get(id=new_post.id)
+        post = Post.objects.get(id=new_post)
         files = request.FILES.getlist('photos')
 
-        for tag in formated:
-            tagg = Tags.objects.get(tagi=tag)
-            print(tag)
-            tagg.post_set.add(post)
-
+        raw_files_names = []
         for file in files:
+            print(file)
             photo_instance = Multimedia(photos=file, post=post)
             photo_instance.save()
+            raw_files_names.append(file)
 
+        automation(title, content, author, tags, raw_files_names)
 
+        template_news = render_to_string("newsletter.html",
+                                         {"title": title,
+                                          "author": author})
+        send_mail("Newsletter koła bioinformatyków",
+                  template_news,
+                  settings.EMAIL_HOST_USER,
+                  ["nswa87@gmail.com"],
+                  fail_silently=False)
 
         return Response({'OK':'OK'})
     return Response({'OK': 'OK'})
-
-
 
 
 
@@ -291,11 +290,6 @@ def View_posts(request):
 
         serializer = PostSerializer(result_page,many=True)
         return paginator.get_paginated_response(serializer.data)
-
-
-
-
-
 
 @api_view(['GET'])
 def Search_query(request,query):
@@ -317,7 +311,7 @@ def Galleries_view(request):
 @parser_classes([JSONParser])
 def registration(request):
     if request.method == 'POST':
-        nick = request.data['nick']
+        nick = request.data["nick"]
         name = request.data["name"]
         surname = request.data["surname"]
         email = request.data["email"]
