@@ -68,7 +68,7 @@ class Database:
             if str(tag) not in list_of_tags:
                 return 0
 
-        tagi_name = tagi_name.split(" ")
+        tagi_name = tagi_name.split(",")
         if choice == True:
             new_post = Post(title=title, content=content, author=author, publish=choice, event=event)
             new_post.save()

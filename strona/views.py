@@ -187,10 +187,8 @@ def Tags_of_Post(request,id):
 
 
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
 def Events(request):
-    events = Post.objects.all().filter(event = True)
+    events = Post.objects.all().filter(event = True,publish = True)
     serializer = PostSerializer(events,many=True)
     return Response(serializer.data)
 
@@ -267,6 +265,7 @@ def Add_Posts(request):
         template_news = render_to_string("newsletter.html",
                                          {"title": title,
                                           "author": author})
+
         send_mail("Newsletter koła bioinformatyków",
                   template_news,
                   settings.EMAIL_HOST_USER,
