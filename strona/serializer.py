@@ -41,7 +41,7 @@ class PostSerializer(serializers.ModelSerializer):
                   'author','date_created','tag',
                   'publish','event','photos',
                   'get_absolute_url','get_time_display',
-                  'views',]
+                  'views','facebook_id']
 
 
 
