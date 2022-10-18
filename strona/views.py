@@ -17,44 +17,28 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics
-import facebook
 
-def automation(title, content, author, tagi_name, files, post_id):
-    a = Database()
-    facebook_access_token = settings.FACEBOOK_ACCESS_TOKEN
-    msg = "{}\n{}\n{}\n{}".format(title, content, tagi_name, author)
+
+import facebook
+def automation(title, content, author, tagi_name, files):
+    #page_id = settings.PAGE_ID
     files_raw = []
     for file in files:
         files_raw.append(file)
 
-    graph = facebook.GraphAPI(facebook_access_token)
-    fb_id = graph.put_photo(image=open("media\\photos\\{}".format(str(files_raw[0])), "rb"), message=msg)
-    post = a.retrieve_post_by_id(post_id)
-    post.facebook_id = str(fb_id["id"])
-    post.save()
-
-
-def facebook_post_delete(post_id):
-    a = Database()
     facebook_access_token = settings.FACEBOOK_ACCESS_TOKEN
-    post = a.retrieve_post_by_id(post_id)
+    msg = "{}\n{}\n{}\n{}".format(title,content, tagi_name, author)
+    driver = facebook.GraphAPI(facebook_access_token)
+    driver.put_photo(image=open("media\\photos\\{}".format(str(files_raw[0])), "rb"), message=msg)
 
-    graph = facebook.GraphAPI(facebook_access_token)
-    graph.delete_object(id=str(post.facebook_id))
 
-    post.facebook_id = 'NULL'
-    post.save()
 
 
 def home(request):
     print('czesc')
     a = Database()
-    a.retrieve_post_by_id(5, "photos/ksiezyc.JPG")
-    #a.modify_post_by_id(5,"Tytuł po edycji", "Zawartosc", "Admin", True,"#stare #poedycji", True)
-    #a.add_tag("#smiechy")
-    #facebook_post_delete(5)
-    #a.pulish_post(5, True)
-    #nowe = a.add_new_post("Dla działającej apki", "Jakieś zblurowane bzdruy", "Arjin", False, "", True)
+    nowe = a.add_new_post("Dla działającej apki", "Jakieś zblurowane bzdruy", "Arjin", False, "", True)
+    print(nowe)
     #automation("Testowy3", "Beep boop", "Arjin", "#1", "blackeczka1.jpg")
     return render(request, 'Home.html')
 
@@ -69,7 +53,7 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
 
 @api_view(['GET'])
-def get_post(request, id):
+def get_post(request,id):
     try:
         post = Post.objects.get(id=id)
     except:
@@ -81,51 +65,8 @@ def get_post(request, id):
         serializer = PostSerializer(post)
         return Response(serializer.data)
 
-@api_view(['GET', 'POST', 'DELETE'])
-def post_edit(request, id):
-    a = Database()
-    try:
-        post = a.retrieve_post_by_id(id=id)
-    except:
-        return Response({'Response':'Brak danych'})
-    if request.method == 'DELETE':
-        post.publish = False
-        facebook_post_delete(post.id)
-        post.save()
-
-        posts = Post.objects.all().filter(publish = True)
-        serializer = PostSerializer(posts,many=True)
-
-        return Response(serializer.data)
-
-    if request.method == 'POST':
-        title = request.data['title']
-        content = request.data['content']
-        author = request.data['author']
-        event = request.data['event']
-        tags = request.data['tag']
-        publish = request.data['publish']
-        photo = request.FILES.getlist('photos')
 
 
-        if event == 'true' or event == "True" or event == True or event == 1:
-            event = True
-        else:
-            event = False
-
-        if publish == 'true' or publish == "True" or publish == True or publish == 1:
-            publish = True
-        else:
-            publish = False
-
-        a.modify_post_by_id(id, title, content, author, event, tags, publish, photo)
-
-        if publish == True:
-            automation(post.title, post.content, post.author, post.tag, photo, post.id)
-
-
-        return Response({"ok":"ok"})
-    return Response({'ok':'ok'})
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -164,6 +105,36 @@ def CommentsOfPost(request,id):
     return Response(serializer.data)
 
 
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def UpdatePost(request, id):
+    a = Database()
+    choice_tags = request.data["tag_handling"]
+    t = request.data["title"]
+    c = request.data["content"]
+    au = request.data["author"]
+    tag_name = request.data["tag_name"]
+    tag_id = int(request.data["tag_id"])
+
+    if choice_tags == "":
+        return Response(a.modify_post_by_id(id, t, c, au))
+
+    elif choice_tags == "add_new":
+        return Response(a.modify_post_by_id(id, t, c, au),
+                        a.add_tag_to_post(tag_name, id))
+
+    elif choice_tags == "add_existing":
+        return Response(a.modify_post_by_id(id, t, c, au),
+                        a.add_existing_tag_to_post(tag_id, id))
+
+    elif choice_tags == "remove":
+        return Response(a.modify_post_by_id(id, t, c, au),
+                        a.remove_tag_from_post(id, tag_id))
+    else:
+        return Response("Possible tag handling command are: '', add_new, add_existing, remove", 404)
+
+
+
 @api_view(["GET","PUT",'POST'])
 def PhotosOfPost(request, post_id):
     photos = Multimedia.objects.all().filter(post_id=post_id)
@@ -171,7 +142,7 @@ def PhotosOfPost(request, post_id):
         serializer = MultimediaSerializer(photos, many=True)
         return Response(serializer.data)
     if request.method == 'POST':
-        serializer = MultimediaSerializer(data=request.data)
+        serializer = MultimediaSerializer(data = request.data)
         if serializer.is_valid():
             serializer.save()
         photos = Multimedia.objects.all().filter(post_id = post_id)
@@ -202,6 +173,12 @@ def PhotosOfMember(request, id):
     return Response(serializer.data)
 
 
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def PublishPost(request, id):
+    a = Database()
+    return Response(a.pulish_post(id, bool(request.data["choice"])))
+
 @api_view(['GET'])
 def Tags_of_Post(request,id):
     tags = Tags.objects.all().filter(post = id)
@@ -227,9 +204,10 @@ def Filter_By_Tags(request,tag):
         return Response({'Response': 'Brak wyniku wyszukiwania'})
 
 
+
 @api_view(['GET','DELETE','PUT','POST'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def Posts(request,id):
     try:
         post = Post.objects.get(id=id)
@@ -242,21 +220,21 @@ def Posts(request,id):
         posts = Post.objects.all().filter(publish = True)
         serializer = PostSerializer(posts,many=True)
 
+
         return Response(serializer.data)
-#nie działą
+
     if request.method == 'PUT':
 
-        serializer = PostSerializer(post,data=request.data)
+        serializer = PostSerializer(post,data = request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-    return Response({'ok':'ok'})
 
 
 
 @api_view(['GET','POST'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def Add_Posts(request):
     base = Database()
     if request.method == 'POST':
@@ -265,7 +243,7 @@ def Add_Posts(request):
         author = request.data['author']
         event = request.data['event']
         tags = request.data['tag']
-        if event == 'true' or event == "True" or event == True or event == 1:
+        if event == 'true':
             event = True
         else:
             event = False
@@ -274,12 +252,16 @@ def Add_Posts(request):
 
         post = Post.objects.get(id=new_post)
         files = request.FILES.getlist('photos')
+
         raw_files_names = []
         for file in files:
+            print(file)
             photo_instance = Multimedia(photos=file, post=post)
             photo_instance.save()
             raw_files_names.append(file)
-        automation(title, content, author, tags, raw_files_names, new_post)
+
+        automation(title, content, author, tags, raw_files_names)
+
         template_news = render_to_string("newsletter.html",
                                          {"title": title,
                                           "author": author})
@@ -288,7 +270,7 @@ def Add_Posts(request):
                   template_news,
                   settings.EMAIL_HOST_USER,
                   ["nswa87@gmail.com"],
-                  fail_silently=True)
+                  fail_silently=False)
 
         return Response({'OK':'OK'})
     return Response({'OK': 'OK'})
@@ -324,7 +306,7 @@ def Galleries_view(request):
     return Response(serializer.data)
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @parser_classes([JSONParser])
 def registration(request):
     if request.method == 'POST':
@@ -336,14 +318,15 @@ def registration(request):
         wydzial = request.data["wydzial"]
         kierunek = request.data["kierunek"]
         rok = request.data["rok"]
-        template = render_to_string("mail.html", {"nick": nick,
-                                                  "name": name,
-                                                  "surname": surname,
-                                                  "email": email,
-                                                  "number": number,
-                                                  "wydzial": wydzial,
-                                                  "kierunek": kierunek,
-                                                  "rok": rok})
+        template = render_to_string("mail.html",
+                                        {"nick":nick,
+                                         "name":name,
+                                         "surname":surname,
+                                         "email":email,
+                                         "number":number,
+                                         "wydzial":wydzial,
+                                         "kierunek":kierunek,
+                                         "rok":rok})
         a = Database()
         a.new_registration(nick,
                            name,
@@ -354,15 +337,12 @@ def registration(request):
                            kierunek,
                            rok)
 
-        send_mail("Dane zgłoszeniowe {} {}".format(name, surname),  # subject
-                  template,  # message
-                  settings.EMAIL_HOST_USER,  # from mail
-                  ["adamek0222@gmail.com"],
-                  fail_silently=False)
+        send_mail("Dane zgłoszeniowe {} {}".format(name, surname), # subject
+                            template,  # message
+                            settings.EMAIL_HOST_USER,  # from mail
+                            ["adamek0222@gmail.com"],)
 
-        return Response({'OK': 'OK'})
-
-    return Response({"OK":"NOK"})
+        return Response({'OK':'OK'})
 
 
 

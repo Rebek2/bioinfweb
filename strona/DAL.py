@@ -7,9 +7,9 @@ class Database:
         t = Tags(tagi=tag_name)
         t.save()
 
-    def fetch_tags(self, tag_id, do_all):
+    def retrieve_tag(self, tag_id, do_all):
         if do_all is True:
-            retri = Tags.objects.all()
+            retri = Tags.objects.all().values()
             return retri
         elif do_all is False:
             retrival = Tags.objects.get(id=tag_id)
@@ -24,17 +24,12 @@ class Database:
 
     #posty
     def retrieve_post_by_title(self, tittle):
-        retri = Post.objects.filter(title=tittle)
+        retri = Post.objects.filter(title=tittle).values()
         return retri
 
     def retrieve_post_by_id(self, id):
-        retri = Post.objects.get(id=id)
-        #fetch = Multimedia.objects.get(photos=file)
-        #print(fetch)
-        #for item in range(len(retri.photos.all())):
-        #    print(str(retri.photos.all()[item].photos).split("photos/")[1])
+        retri = Post.objects.filter(id=id).values()
         return retri
-
 
     def retrive_posts_values(self):
         retri = Post.objects.all().values().order_by("id")
@@ -48,72 +43,14 @@ class Database:
         new_con.content = content
         new_con.save()
 
-    def modify_post_by_id(self, id, tittle, content, author, event, tags, publish, files):
-        new_post_content = Post.objects.get(id=id)
-        new_post_content.publish = publish
-        new_post_content.event = event
-        if len(tags) == 0:
-            pass
-        else:
-            tags = tags.split(" ")
-            fetch_tags = Tags.objects.all()
-            list_of_tags = list(str(item.tagi) for item in fetch_tags)
-            fetch_post_tags = new_post_content.tag.all()
-            list_of_posttags = list(str(item.tagi) for item in fetch_post_tags)
-            for tag in tags:
-                if tag not in list_of_posttags:
-                    if tag not in list_of_tags:
-                        new_tag = Tags.objects.create(tagi=tag)
-                        new_tag.save()
-                        new_post_content.tag.add(new_tag)
-                        new_post_content.save()
-                    elif tag in list_of_tags:
-                        fetch_tag = Tags.objects.get(tagi=tag)
-                        new_post_content.tag.add(fetch_tag)
-                        new_post_content.save()
+    def modify_post_by_id(self,id , tittle, content, author):
+        new_con = Post.objects.get(id=id)
+        new_con.title = tittle
+        new_con.content = content
+        new_con.author = author
+        new_con.save()
 
-            for tag in list_of_posttags:
-                if tag not in tags:
-                    old_tag = Tags.objects.get(tagi=tag)
-                    new_post_content.tag.remove(old_tag)
-                    old_tag.save()
-                    new_post_content.save()
-        if tittle != new_post_content.title:
-            new_post_content.title = tittle
-
-        if content != new_post_content.content:
-            new_post_content.content = content
-
-        if author != new_post_content.author:
-            new_post_content.author = author
-
-        fetch_allfiles = []
-        for item in range(len(Multimedia.objects.all())):
-
-            fetch_allfiles.append(Multimedia.objects.all()[item].post)
-        fetch_postfiles = []
-        for item in range(len(new_post_content.photos.all())):
-            fetch_postfiles.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
-
-        print(fetch_postfiles, "\n",files)
-        for photo in files:
-            if photo not in fetch_postfiles:
-                photo_insta = Multimedia(photos=photo, post=new_post_content)
-                photo_insta.save()
-
-        for photo in fetch_postfiles:
-            if photo not in files:
-                print(photo)
-                instance = "photos/{}".format(photo)
-                old_photo = Multimedia.objects.get(photos=instance)
-                new_post_content.photos.remove(old_photo)
-                old_photo.save()
-                new_post_content.save()
-
-        new_post_content.save()
-
-
-    def do_exi_tag(self, tag):
+    def do_exi(self, tag):
         fetch_tags = Tags.objects.all()
         list_of_tags = list(str(item.tagi) for item in fetch_tags)
         if str(tag) in list_of_tags:
@@ -260,8 +197,6 @@ class Database:
     def list_of_members(self):
         members = Registration.objects.values()
         return list(members)
-
-
 
 
 

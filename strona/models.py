@@ -13,7 +13,6 @@ class Post(models.Model):
     publish = models.BooleanField(default = True)
     event = models.BooleanField(default = False)
     views = models.BigIntegerField(default = 0)
-    facebook_id = models.TextField( max_length=250)
 
     class Meta:
         ordering = ('-date_created',)
@@ -31,19 +30,20 @@ class Post(models.Model):
         self.views = self.views + 1
 
 class Comment(models.Model):
-    content = models.TextField(max_length=1000)
-    User = models.CharField(max_length=10)#to bedzie po prostu do wpisania przez uzytkownika bez potrzeby logowania.
+    content = models.TextField(max_length = 1000)
+    User = models.CharField(max_length = 10)#to bedzie po prostu do wpisania przez uzytkownika bez potrzeby logowania.
+
     post = models.ForeignKey(Post,
                              null=True,
-                             blank=True,
-                             on_delete=models.SET_NULL,
-                             related_name='comments')
+                             blank = True,
+                             on_delete = models.SET_NULL,
+
+                             related_name = 'comments')
 
     date = models.DateTimeField(auto_now_add = True)
 
     def get_time(self):
         return(f'{self.date.strftime("%Y-%m-%d %H:%M:%S")}')
-
     class Meta:
         ordering = ['-date']
     #
@@ -58,10 +58,10 @@ class Comment(models.Model):
 class Multimedia(models.Model):
 
     post = models.ForeignKey(Post,
-                             on_delete=models.CASCADE,
-                             related_name ='photos',
-                             blank=True,
-                             null=True)
+                             on_delete = models.CASCADE,
+                             related_name = 'photos',
+                             blank = True,
+                             null = True)
 
     members = models.ForeignKey('Members',
                                 on_delete=models.CASCADE,
@@ -110,7 +110,8 @@ class Members(models.Model):
 
 
 class Registration(models.Model):
-    nick = models.CharField(max_length=120, blank=True, null=True)
+
+    nick = models.CharField(max_length=120, blank = True,null=True)
     name = models.CharField(max_length=200)
     surname = models.CharField(max_length=200)
     email = models.CharField(max_length=200)
