@@ -32,7 +32,7 @@ urlpatterns = [
     path('auth',obtain_auth_token),
     #path('post-edit/<int:id>',views.Posts),
     path('post/edit/<int:id>', views.post_edit),
-    path('post/add',views.Add_Posts),
+    path('post/add-new',views.Add_Posts),
     path('view-posts',views.View_posts),
     path('post/deletion/<int:id>',views.delete),
     path('post/deleted',views.GET_DELETED_POSTS),

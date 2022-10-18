@@ -58,10 +58,10 @@ class Comment(models.Model):
 class Multimedia(models.Model):
 
     post = models.ForeignKey(Post,
-                             on_delete=models.CASCADE,
-                             related_name ='photos',
-                             blank=True,
-                             null=True)
+                              on_delete=models.CASCADE,
+                              related_name ='photos',
+                              blank=True,
+                              null=True)
 
     members = models.ForeignKey('Members',
                                 on_delete=models.CASCADE,

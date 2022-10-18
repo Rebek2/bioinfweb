@@ -23,10 +23,6 @@ class Database:
         g_x.save()
 
     #posty
-    def retrieve_post_by_title(self, tittle):
-        retri = Post.objects.filter(title=tittle)
-        return retri
-
     def retrieve_post_by_id(self, id):
         retri = Post.objects.get(id=id)
         #fetch = Multimedia.objects.get(photos=file)
@@ -43,15 +39,11 @@ class Database:
         return all_data
 
 
-    def modify_post_content_by_title(self, tittle, content):
-        new_con = Post.objects.filter(title=tittle)
-        new_con.content = content
-        new_con.save()
-
     def modify_post_by_id(self, id, tittle, content, author, event, tags, publish, files):
         new_post_content = Post.objects.get(id=id)
         new_post_content.publish = publish
         new_post_content.event = event
+        #tags handling
         if len(tags) == 0:
             pass
         else:
@@ -78,6 +70,7 @@ class Database:
                     new_post_content.tag.remove(old_tag)
                     old_tag.save()
                     new_post_content.save()
+        #rest of data
         if tittle != new_post_content.title:
             new_post_content.title = tittle
 
@@ -87,15 +80,43 @@ class Database:
         if author != new_post_content.author:
             new_post_content.author = author
 
-        fetch_allfiles = []
-        for item in range(len(Multimedia.objects.all())):
-
-            fetch_allfiles.append(Multimedia.objects.all()[item].post)
+        #trying to figure out how to repair photos
         fetch_postfiles = []
         for item in range(len(new_post_content.photos.all())):
             fetch_postfiles.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
 
-        print(fetch_postfiles, "\n",files)
+        raw_file_names = []
+        for file in files:
+            raw_file_names.append(str(file).replace(" ", "_"))
+
+        for item in raw_file_names:
+            if item not in fetch_postfiles:
+                print(True)
+            else:
+                print(False)
+
+        for photo in fetch_postfiles:
+            if photo not in raw_file_names:
+                print(1)
+            else:
+                print(0)
+
+        new_post_content.save()
+
+    def remove_photo_intance(self, file):
+        fetch = Multimedia.objects.get(photos=file)
+        post = Post.objects.get(id=fetch.post.id)
+
+        fetch_postfiles = []
+        for item in range(len(post.photos.all())):
+            fetch_postfiles.append(str(post.photos.all()[item].photos).split("photos/")[1])
+
+        print(fetch.photos, fetch_postfiles)
+        if str(fetch.photos).split("photos/")[1] in fetch_postfiles:
+            print(True)
+        else:
+            print(False)
+
         for photo in files:
             if photo not in fetch_postfiles:
                 photo_insta = Multimedia(photos=photo, post=new_post_content)
@@ -110,7 +131,8 @@ class Database:
                 old_photo.save()
                 new_post_content.save()
 
-        new_post_content.save()
+
+        print(fetch.id, post.id)
 
 
     def do_exi_tag(self, tag):
@@ -131,7 +153,7 @@ class Database:
             if str(tag) not in list_of_tags:
                 return 0
 
-        tagi_name = tagi_name.split(",")
+        tagi_name = tagi_name.split(" ")
         if choice == True:
             new_post = Post(title=title, content=content, author=author, publish=choice, event=event)
             new_post.save()
@@ -162,6 +184,7 @@ class Database:
                     new_post.tag.add(new_tag)
                     new_post.save()
             return new_post.id
+
 
 
     def add_tag_to_post(self, tag_name, post_id):

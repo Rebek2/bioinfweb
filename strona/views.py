@@ -49,13 +49,7 @@ def facebook_post_delete(post_id):
 def home(request):
     print('czesc')
     a = Database()
-    a.retrieve_post_by_id(5, "photos/ksiezyc.JPG")
-    #a.modify_post_by_id(5,"Tytuł po edycji", "Zawartosc", "Admin", True,"#stare #poedycji", True)
-    #a.add_tag("#smiechy")
-    #facebook_post_delete(5)
-    #a.pulish_post(5, True)
-    #nowe = a.add_new_post("Dla działającej apki", "Jakieś zblurowane bzdruy", "Arjin", False, "", True)
-    #automation("Testowy3", "Beep boop", "Arjin", "#1", "blackeczka1.jpg")
+    a.remove_photo_intance("photos/trojka_10Ybl13.jpg")
     return render(request, 'Home.html')
 
 
@@ -106,7 +100,6 @@ def post_edit(request, id):
         tags = request.data['tag']
         publish = request.data['publish']
         photo = request.FILES.getlist('photos')
-
 
         if event == 'true' or event == "True" or event == True or event == 1:
             event = True
@@ -265,6 +258,7 @@ def Add_Posts(request):
         author = request.data['author']
         event = request.data['event']
         tags = request.data['tag']
+        print(tags)
         if event == 'true' or event == "True" or event == True or event == 1:
             event = True
         else:
@@ -279,6 +273,7 @@ def Add_Posts(request):
             photo_instance = Multimedia(photos=file, post=post)
             photo_instance.save()
             raw_files_names.append(file)
+
         automation(title, content, author, tags, raw_files_names, new_post)
         template_news = render_to_string("newsletter.html",
                                          {"title": title,
