@@ -18,6 +18,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics
 import facebook
+import requests
 
 def automation(title, content, author, tagi_name, files, post_id):
     a = Database()
@@ -28,9 +29,13 @@ def automation(title, content, author, tagi_name, files, post_id):
         files_raw.append(file)
 
     graph = facebook.GraphAPI(facebook_access_token)
-    fb_id = graph.put_photo(image=open("media\\photos\\{}".format(str(files_raw[0])), "rb"), message=msg)
+    fb_id = graph.put_photo(image=open("media\\photos\\{}".format(str(files_raw[0])), "rb"),
+                            message=msg)
+    print(fb_id)
+    fb_post_id = str(fb_id["post_id"])
     post = a.retrieve_post_by_id(post_id)
-    post.facebook_id = str(fb_id["id"])
+    post.facebook_id = fb_post_id
+    print(post.facebook_id)
     post.save()
 
 
@@ -45,11 +50,19 @@ def facebook_post_delete(post_id):
     post.facebook_id = 'NULL'
     post.save()
 
+def facebook_post_fetch(post_id):
+    a = Database()
+    facebook_access_token = settings.FACEBOOK_ACCESS_TOKEN
+    post = a.retrieve_post_by_id(post_id)
+    graph = facebook.GraphAPI(facebook_access_token)
+    print(graph.get_object(id=str(post.facebook_id)))
+
 
 def home(request):
     print('czesc')
     a = Database()
-    a.remove_photo_intance("photos/trojka_10Ybl13.jpg")
+    #a.remove_photo_intance("photos/piatka.jpg")
+    facebook_post_fetch(4)
     return render(request, 'Home.html')
 
 
@@ -112,9 +125,16 @@ def post_edit(request, id):
             publish = False
 
         a.modify_post_by_id(id, title, content, author, event, tags, publish, photo)
+        raw_photos = []
+        for item in photo:
+            raw_photos.append(item)
 
         if publish == True:
-            automation(post.title, post.content, post.author, post.tag, photo, post.id)
+            if post.facebook_id == "":
+                automation(post.title, post.content, post.author, post.tag, raw_photos, post.id)
+            elif post.facebook_id != "":
+                facebook_post_delete(id)
+                automation(post.title, post.content, post.author, post.tag, raw_photos, post.id)
 
 
         return Response({"ok":"ok"})
@@ -220,33 +240,6 @@ def Filter_By_Tags(request,tag):
         return Response({'Response': 'Brak wyniku wyszukiwania'})
 
 
-@api_view(['GET','DELETE','PUT','POST'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
-def Posts(request,id):
-    try:
-        post = Post.objects.get(id=id)
-    except:
-        return Response({'Response':'Brak danych'})
-    if request.method == 'DELETE':
-        post.publish = False
-        post.save()
-
-        posts = Post.objects.all().filter(publish = True)
-        serializer = PostSerializer(posts,many=True)
-
-        return Response(serializer.data)
-#nie działą
-    if request.method == 'PUT':
-
-        serializer = PostSerializer(post,data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-    return Response({'ok':'ok'})
-
-
-
 @api_view(['GET','POST'])
 #@authentication_classes([TokenAuthentication])
 #@permission_classes([IsAuthenticated])
@@ -279,10 +272,10 @@ def Add_Posts(request):
                                          {"title": title,
                                           "author": author})
 
-        send_mail("Newsletter koła bioinformatyków",
-                  template_news,
-                  settings.EMAIL_HOST_USER,
-                  ["nswa87@gmail.com"],
+        send_mail("Newsletter koła bioinformatyków",#title
+                  template_news,#content
+                  settings.EMAIL_HOST_USER,#mail from
+                  base.return_mails_of_users(), #its returns list, soo there is no need for another parenthesis
                   fail_silently=True)
 
         return Response({'OK':'OK'})
@@ -320,7 +313,6 @@ def Galleries_view(request):
 
 
 @api_view(['POST'])
-@parser_classes([JSONParser])
 def registration(request):
     if request.method == 'POST':
         nick = request.data["nick"]
@@ -352,7 +344,7 @@ def registration(request):
         send_mail("Dane zgłoszeniowe {} {}".format(name, surname),  # subject
                   template,  # message
                   settings.EMAIL_HOST_USER,  # from mail
-                  ["adamek0222@gmail.com"],
+                  ["nswa87@gmail.com"], #to mail
                   fail_silently=False)
 
         return Response({'OK': 'OK'})

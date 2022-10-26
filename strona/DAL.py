@@ -25,10 +25,6 @@ class Database:
     #posty
     def retrieve_post_by_id(self, id):
         retri = Post.objects.get(id=id)
-        #fetch = Multimedia.objects.get(photos=file)
-        #print(fetch)
-        #for item in range(len(retri.photos.all())):
-        #    print(str(retri.photos.all()[item].photos).split("photos/")[1])
         return retri
 
 
@@ -47,7 +43,7 @@ class Database:
         if len(tags) == 0:
             pass
         else:
-            tags = tags.split(" ")
+            tags = tags.split(",")
             fetch_tags = Tags.objects.all()
             list_of_tags = list(str(item.tagi) for item in fetch_tags)
             fetch_post_tags = new_post_content.tag.all()
@@ -89,22 +85,24 @@ class Database:
         for file in files:
             raw_file_names.append(str(file).replace(" ", "_"))
 
-        for item in raw_file_names:
-            if item not in fetch_postfiles:
+        for item in range(len(raw_file_names)):
+            if raw_file_names[item] not in fetch_postfiles:
+                new_photo = Multimedia(photos=files[item], post=new_post_content)
+                new_photo.save()
                 print(True)
             else:
                 print(False)
 
         for photo in fetch_postfiles:
             if photo not in raw_file_names:
-                print(1)
+                print(photo, 1)
             else:
-                print(0)
+                print(photo, 0)
 
         new_post_content.save()
 
-    def remove_photo_intance(self, file):
-        fetch = Multimedia.objects.get(photos=file)
+    def remove_photo_intance(self, files):
+        fetch = Multimedia.objects.get(photos=files)
         post = Post.objects.get(id=fetch.post.id)
 
         fetch_postfiles = []
@@ -119,7 +117,7 @@ class Database:
 
         for photo in files:
             if photo not in fetch_postfiles:
-                photo_insta = Multimedia(photos=photo, post=new_post_content)
+                photo_insta = Multimedia(photos=photo, post=post)
                 photo_insta.save()
 
         for photo in fetch_postfiles:
@@ -127,9 +125,10 @@ class Database:
                 print(photo)
                 instance = "photos/{}".format(photo)
                 old_photo = Multimedia.objects.get(photos=instance)
-                new_post_content.photos.remove(old_photo)
+                post.photos.remove(old_photo)
+                post.photos.filter(photos=instance).delete()
                 old_photo.save()
-                new_post_content.save()
+                post.save()
 
 
         print(fetch.id, post.id)
@@ -153,7 +152,7 @@ class Database:
             if str(tag) not in list_of_tags:
                 return 0
 
-        tagi_name = tagi_name.split(" ")
+        tagi_name = tagi_name.split(",")
         if choice == True:
             new_post = Post(title=title, content=content, author=author, publish=choice, event=event)
             new_post.save()
@@ -277,7 +276,10 @@ class Database:
 
     def return_mails_of_users(self):
         data = Registration.objects.all()
-        return list(data.email)
+        fetch_mails = []
+        for email in data:
+            fetch_mails.append(email.email)
+        return fetch_mails
 
 
     def list_of_members(self):
