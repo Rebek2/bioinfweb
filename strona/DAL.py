@@ -1,11 +1,19 @@
 from .models import Tags, Post, Multimedia, Comment, Galery, Registration
-
+import os
 
 class Database:
     #tagi
-    def add_tag(self, tag_name):
-        t = Tags(tagi=tag_name)
-        t.save()
+    def add_tags(self, tags_names):
+        fetch_tags = Tags.objects.all()
+        lis_fetch_tags = list(str(item.tagi) for item in fetch_tags)
+        tags_names.split(",")
+        for tag in tags_names:
+            if tag not in lis_fetch_tags:
+                t = Tags(tagi=tag)
+                t.save()
+
+        fetch_new_tags = Tags.objects.all()
+        return fetch_new_tags
 
     def fetch_tags(self, tag_id, do_all):
         if do_all is True:
@@ -17,23 +25,26 @@ class Database:
         else:
             raise ValueError("Choice must be boolean, True to retrive all tags or False to retrive one by id")
 
-    def modify_tag_name_by_id(self, tag_id, name):
-        g_x = Tags.objects.get(id=tag_id)
-        g_x.tagi = name
-        g_x.save()
+    def clear_unused_tags(self):
+        fetch_tags = list(str(item.tagi) for item in Tags.objects.all())
+        post = Post.objects.all()
+        posts_tags = post.tag.all()
+        return (fetch_tags, posts_tags)
 
     #posty
     def retrieve_post_by_id(self, id):
         retri = Post.objects.get(id=id)
+        #fetch = Multimedia.objects.get(photos=file)
+        #print(fetch)
+        #for item in range(len(retri.photos.all())):
+        #    print(str(retri.photos.all()[item].photos).split("photos/")[1])
         return retri
-
 
     def retrive_posts_values(self):
         retri = Post.objects.all().values().order_by("id")
         retri2 = Post.objects.all()[0].tag.all()
         all_data = (retri, retri2)
         return all_data
-
 
     def modify_post_by_id(self, id, tittle, content, author, event, tags, publish, files):
         new_post_content = Post.objects.get(id=id)
@@ -77,7 +88,7 @@ class Database:
             new_post_content.author = author
 
         #trying to figure out how to repair photos
-        fetch_postfiles = []
+        fetch_postfiles = [] #iteration before adding new photos
         for item in range(len(new_post_content.photos.all())):
             fetch_postfiles.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
 
@@ -89,21 +100,30 @@ class Database:
             if raw_file_names[item] not in fetch_postfiles:
                 new_photo = Multimedia(photos=files[item], post=new_post_content)
                 new_photo.save()
-                print(True)
+                print(raw_file_names[item],True)
             else:
-                print(False)
+                print(raw_file_names[item], False)
 
-        for photo in fetch_postfiles:
+        fetch_postfiles_new = [] #iteration after adding new photos
+        for item in range(len(new_post_content.photos.all())):
+            fetch_postfiles_new.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
+
+        for photo in fetch_postfiles_new:
             if photo not in raw_file_names:
-                print(photo, 1)
+                instance = Multimedia.objects.get(photos="photos/{}".format(photo))
+                instance.delete()
+                if os.path.exists(r"media/photos/{}".format(photo)):
+                    os.remove(r"media/photos/{}".format(photo))
+                print(instance.photos, 1)
+
             else:
                 print(photo, 0)
 
         new_post_content.save()
 
-    def remove_photo_intance(self, files):
+    def remove_photo_instance(self, files, post_id):
         fetch = Multimedia.objects.get(photos=files)
-        post = Post.objects.get(id=fetch.post.id)
+        post = Post.objects.get(id=post_id)
 
         fetch_postfiles = []
         for item in range(len(post.photos.all())):
@@ -125,8 +145,8 @@ class Database:
                 print(photo)
                 instance = "photos/{}".format(photo)
                 old_photo = Multimedia.objects.get(photos=instance)
-                post.photos.remove(old_photo)
-                post.photos.filter(photos=instance).delete()
+                #post.photos.remove(old_photo)
+                post.photos.filter(photos=instance)
                 old_photo.save()
                 post.save()
 

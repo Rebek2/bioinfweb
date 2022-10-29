@@ -1,8 +1,6 @@
 from django.db import models
 from versatileimagefield.fields import VersatileImageField, PPOIField
-from datetime import date
 # Create your models here.
-import datetime
 
 class Post(models.Model):
     title = models.CharField(max_length = 30)
@@ -13,7 +11,7 @@ class Post(models.Model):
     publish = models.BooleanField(default = True)
     event = models.BooleanField(default = False)
     views = models.BigIntegerField(default = 0)
-    facebook_id = models.TextField( max_length=250)
+    facebook_id = models.TextField( max_length=250, default=None)
 
     class Meta:
         ordering = ('-date_created',)
@@ -46,22 +44,17 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-date']
-    #
-    # def when(self):
-    #     when = datetime.datetime.now() - self.date
-    #     return (f'{when.strftime("%Y/%m/%d  Godzina:%H:%M:%S")}')
 
     def __str__(self):
         return self.User
 
 
 class Multimedia(models.Model):
-
     post = models.ForeignKey(Post,
-                              on_delete=models.CASCADE,
-                              related_name ='photos',
-                              blank=True,
-                              null=True)
+                             on_delete=models.CASCADE,
+                             related_name ='photos',
+                             blank=True,
+                             null=True)
 
     members = models.ForeignKey('Members',
                                 on_delete=models.CASCADE,
@@ -69,21 +62,18 @@ class Multimedia(models.Model):
                                 blank=True,
                                 null=True)
 
-    photos = VersatileImageField(
-        'Image',
-        upload_to='photos/',
-        ppoi_field='image_ppoi',
-        blank=True,
-        null=True
-    )
+    photos = VersatileImageField('Image',
+                                 upload_to='photos/',
+                                 ppoi_field='image_ppoi',
+                                 blank=True,
+                                 null=True)
     image_ppoi = PPOIField()
     gallery = models.ForeignKey('Galery',
                                 on_delete=models.CASCADE,
                                 blank=True,
                                 null=True,
                                 related_name ='gallery_photos' )
-    def __str__(self):
-        return self.photos
+
 
 
 class Tags(models.Model):
