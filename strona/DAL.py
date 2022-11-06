@@ -1,5 +1,6 @@
 from .models import Tags, Post, Multimedia, Comment, Galery, Registration
 import os
+import sqlite3
 
 class Database:
     #tagi
@@ -26,10 +27,20 @@ class Database:
             raise ValueError("Choice must be boolean, True to retrive all tags or False to retrive one by id")
 
     def clear_unused_tags(self):
-        fetch_tags = list(str(item.tagi) for item in Tags.objects.all())
-        post = Post.objects.all()
-        posts_tags = post.tag.all()
-        return (fetch_tags, posts_tags)
+        fetch_tags = list(item.id for item in Tags.objects.all())
+        con = sqlite3.connect(r"\bioinfweb\db.sqlite3")
+        curr = con.cursor()
+        rek = curr.execute("SELECT tags_id FROM strona_post_tag")
+        post_tags = list(set(rek.fetchall()))
+        for item in range(len(post_tags)):
+            char = post_tags[item][0]
+            post_tags[item] = char
+
+        for tag in fetch_tags:
+            if tag not in post_tags:
+                ghost_tag = Tags.objects.get(id=tag)
+                ghost_tag.delete()
+        return None
 
     #posty
     def retrieve_post_by_id(self, id):

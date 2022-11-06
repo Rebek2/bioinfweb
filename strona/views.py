@@ -19,6 +19,7 @@ import os
 
 
 class FB_manager:
+    page_id = settings.PAGE_ID
     facebook_access_token = settings.FACEBOOK_ACCESS_TOKEN
     dal = Database()
 
@@ -38,22 +39,23 @@ class FB_manager:
 
     def facebook_post_delete(self, post_id):
         post = self.dal.retrieve_post_by_id(post_id)
-
         graph = facebook.GraphAPI(self.facebook_access_token)
         graph.delete_object(id=str(post.facebook_id))
-
         post.facebook_id = 'None'
         post.save()
 
-    def facebook_post_fetch(self, post_id):
+    def facebook_post_fetch_data(self, post_id):
         post = self.dal.retrieve_post_by_id(post_id)
         graph = facebook.GraphAPI(self.facebook_access_token)
+
+    def get_access_permanent_accest_token(self, app_secret):
+        requests.get("")
 
 
 def home(request):
     print('czesc')
     a = Database()
-    a.remove_photo_instance("photos/jk.jpg", 1)
+    print(a.clear_unused_tags())
     #facebook_post_fetch(4)
     return render(request, 'Home.html')
 
@@ -511,7 +513,7 @@ def Delete_gallery(request,id):
         serializer = GallerySerializer(photos,many=True)
         return Response(serializer.data)
 
-@api_view(['GET','POST', 'PUT'])
+@api_view(['GET','DELETE', 'PUT'])
 #@authentication_classes([TokenAuthentication])
 #@permission_classes([IsAuthenticated])
 def getTags(request):
@@ -526,8 +528,8 @@ def getTags(request):
         serializer = TagsSerializer(tags,many=True)
         return Response(serializer.data)
 
-    if request.method == "POST":
-        names = request.data["tagi"]
+    if request.method == "DELETE":
+        Database().clear_unused_tags()
 
 
 
