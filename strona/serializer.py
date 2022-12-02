@@ -62,7 +62,17 @@ class GallerySerializer(serializers.HyperlinkedModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
-        fields = ["nick", "name", "surname", "email", "number", "wydzial", "kierunek", "rok",'get_time']
+        fields = ["id",
+                  "nick",
+                  "name",
+                  "surname",
+                  "email",
+                  "number",
+                  "wydzial",
+                  "kierunek",
+                  "rok",
+                  'get_time',
+                  "subscription"]
 
 
 class UserSerializer(serializers.ModelSerializer):

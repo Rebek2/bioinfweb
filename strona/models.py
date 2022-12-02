@@ -11,7 +11,7 @@ class Post(models.Model):
     publish = models.BooleanField(default = True)
     event = models.BooleanField(default = False)
     views = models.BigIntegerField(default = 0)
-    facebook_id = models.TextField( max_length=250, default=None)
+    facebook_id = models.TextField(max_length=250, default="None")
 
     class Meta:
         ordering = ('-date_created',)
@@ -95,7 +95,7 @@ class Members(models.Model):
     user = models.CharField(max_length=120)
     position = models.CharField(max_length=150)
     about = models.CharField(max_length=1000)
-    email = models.CharField(max_length = 100, default='none')
+    email = models.CharField(max_length=100, default='none')
 
     def __str__(self):
         return self.user
@@ -111,6 +111,7 @@ class Registration(models.Model):
     kierunek = models.CharField(max_length=300)
     rok = models.CharField(max_length=50)
     date = models.DateTimeField(auto_now_add=True)
+    subscription = models.BooleanField(default=True)
 
     def __str__(self):
         return self.surname

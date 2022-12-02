@@ -21,10 +21,11 @@ import os
 class FB_manager:
     page_id = settings.PAGE_ID
     facebook_access_token = settings.FACEBOOK_ACCESS_TOKEN
+    app_id = settings.FACEBOOK_APP_ID
     dal = Database()
 
-    def automation(self, title, content, author, tagi_name, files, post_id):
-        msg = "{}\n{}\n{}\n{}".format(title, content, tagi_name, author)
+    def automation(self, files, post_id):
+        msg = self.dal.fetch_post_values(post_id)
         files_raw = []
         for file in files:
             files_raw.append(file)
@@ -37,26 +38,46 @@ class FB_manager:
         post.facebook_id = fb_post_id
         post.save()
 
-    def facebook_post_delete(self, post_id):
+    def post_deletetion(self, post_id):
         post = self.dal.retrieve_post_by_id(post_id)
+
         graph = facebook.GraphAPI(self.facebook_access_token)
         graph.delete_object(id=str(post.facebook_id))
+
         post.facebook_id = 'None'
         post.save()
 
-    def facebook_post_fetch_data(self, post_id):
+    def fetch_data_post(self, post_id):
         post = self.dal.retrieve_post_by_id(post_id)
-        graph = facebook.GraphAPI(self.facebook_access_token)
+        pfbid = post.facebook_id
+        data_url = "https://graph.facebook.com/v15.0/{}?fields=comments.summary(True),message.summary(True),full_picture&access_token={}".format(pfbid, self.facebook_access_token)
+        return requests.get(data_url).json()
 
-    def get_access_permanent_accest_token(self, app_secret):
-        requests.get("")
+    def edit_post(self, post_id):
+        post = self.dal.retrieve_post_by_id(post_id)
+        mess = self.dal.fetch_post_values(post_id)
+        url = "https://graph.facebook.com/v15.0/{}?message={}%20wiadomosc&access_token={}".format(post.facebook_id,
+                                                                                                  mess,
+                                                                                                  self.facebook_access_token)
+        return requests.post(url)
+
+    def get_access_permanent_accest_token(self, app_secret, short_token):
+        urluno = "https://graph.facebook.com/v15.0/oauth/access_token?grant_type=fb_exchange_token&client_id={}&client_secret={}&fb_exchange_token={}".format(self.app_id, app_secret, short_token)
+        personal_token = requests.get(urluno).json()
+        urlduo = "https://graph.facebook.com/v15.0/me?access_token={}".format(personal_token["access_token"])
+        user_id = requests.get(urlduo).json()
+        urltri = "https://graph.facebook.com/v15.0/{}/accounts?access_token={}".format(user_id,personal_token)
+        token = requests.get(urltri).json()
+        return token[0]["access_token"]
+
 
 
 def home(request):
     print('czesc')
     a = Database()
-    print(a.clear_unused_tags())
-    #facebook_post_fetch(4)
+    print(a.fetch_post_values(2))
+    #print(a.add_comms_from_FB(FB_manager().fetch_data_post(2),"111016638421384_127474316787981"))
+    #print(FB_manager().fetch_data_post(2))
     return render(request, 'Home.html')
 
 
@@ -106,8 +127,10 @@ def get_post(request, id):
     except:
         return Response({'Response':'No data'})
     if request.method == 'GET':
+        Database().add_comms_from_FB(FB_manager().fetch_data_post(id),post.facebook_id)
         post.add_view()
         post.save()
+
         serializer = PostSerializer(post)
         return Response(serializer.data)
 
@@ -124,6 +147,7 @@ def PhotosOfPost(request, post_id):
     if request.method == 'GET':
         serializer = MultimediaSerializer(photos, many=True)
         return Response(serializer.data)
+
     if request.method == 'POST':
         serializer = MultimediaSerializer(data=request.data)
         if serializer.is_valid():
@@ -144,7 +168,7 @@ def post_edit(request, id):
         return Response({'Response':'Brak danych'})
     if request.method == 'DELETE':
         post.publish = False
-        FB_manager().facebook_post_delete(post.id)
+        FB_manager().post_deletetion(post.id)
         post.save()
 
         posts = Post.objects.all().filter(publish = True)
@@ -177,16 +201,14 @@ def post_edit(request, id):
             raw_photos.append(item)
 
         if publish == True:
-            if post.facebook_id == "":
-                FB_manager().automation(post.title, post.content, post.author, post.tag, raw_photos, post.id)
-            elif post.facebook_id != "":
-                FB_manager().facebook_post_delete(id)
-                FB_manager().automation(post.title, post.content, post.author, post.tag, raw_photos, post.id)
+            if post.facebook_id == "None":
+                FB_manager().automation(raw_photos, post.id)
+            elif post.facebook_id != "None":
+                FB_manager().post_deletetion(id)
+                FB_manager().automation(raw_photos, post.id)
         elif publish == False:
             if str(post.facebook_id) != 'None':
-                post.facebook_id = 'None'
-                post.save()
-                print(post.facebook_id)
+                FB_manager().post_deletetion(id)
             else:
                 print("no")
 
@@ -205,7 +227,6 @@ def Add_Posts(request):
         author = request.data['author']
         event = request.data['event']
         tags = request.data['tag']
-        print(tags)
         if event == 'true' or event == "True" or event == True or event == 1:
             event = True
         else:
@@ -221,7 +242,7 @@ def Add_Posts(request):
             photo_instance.save()
             raw_files_names.append(file)
 
-        FB_manager().automation(title, content, author, tags, raw_files_names, new_post)
+        FB_manager().automation(raw_files_names, new_post)
         template_news = render_to_string("newsletter.html",
                                          {"title": title,
                                           "author": author})
@@ -335,6 +356,7 @@ def registration(request):
         wydzial = request.data["wydzial"]
         kierunek = request.data["kierunek"]
         rok = request.data["rok"]
+        sub = request.data["sub"]
         template = render_to_string("mail.html", {"nick": nick,
                                                   "name": name,
                                                   "surname": surname,
@@ -351,8 +373,8 @@ def registration(request):
                            number,
                            wydzial,
                            kierunek,
-                           rok)
-
+                           rok,
+                           sub)
         send_mail("Dane zgłoszeniowe {} {}".format(name, surname),  # subject
                   template,  # message
                   settings.EMAIL_HOST_USER,  # from mail
@@ -547,3 +569,11 @@ def most_viewed(request):
 
         serializer = PostSerializer(posts,many=True)
         return Response(serializer.data)
+
+@api_view(["POST"])
+def canceling_subsctiption(request):
+    if request.method == "POST":
+        user_mail = request.data["e-mail"]
+        res = Database().change_subs_status(user_mail)
+        return Response({"Status": "{}".format(res)})
+    return Response({"ok":"ok"})

@@ -132,38 +132,18 @@ class Database:
 
         new_post_content.save()
 
-    def remove_photo_instance(self, files, post_id):
-        fetch = Multimedia.objects.get(photos=files)
+    def fetch_post_values(self, post_id):
         post = Post.objects.get(id=post_id)
+        tagi = Tags.objects.filter(post=post_id)
+        redable_tags = ""
+        for item in range(len(tagi)):
+            if item == len(tagi)-1:
+                redable_tags = redable_tags + f"{tagi[item]}"
+            else:
+                redable_tags = redable_tags + f"{tagi[item]},"
+        mess = f"{post.title}\n{post.content}\n{redable_tags}\n{post.author}"
 
-        fetch_postfiles = []
-        for item in range(len(post.photos.all())):
-            fetch_postfiles.append(str(post.photos.all()[item].photos).split("photos/")[1])
-
-        print(fetch.photos, fetch_postfiles)
-        if str(fetch.photos).split("photos/")[1] in fetch_postfiles:
-            print(True)
-        else:
-            print(False)
-
-        for photo in files:
-            if photo not in fetch_postfiles:
-                photo_insta = Multimedia(photos=photo, post=post)
-                photo_insta.save()
-
-        for photo in fetch_postfiles:
-            if photo not in files:
-                print(photo)
-                instance = "photos/{}".format(photo)
-                old_photo = Multimedia.objects.get(photos=instance)
-                #post.photos.remove(old_photo)
-                post.photos.filter(photos=instance)
-                old_photo.save()
-                post.save()
-
-
-        print(fetch.id, post.id)
-
+        return mess
 
     def do_exi_tag(self, tag):
         fetch_tags = Tags.objects.all()
@@ -262,6 +242,20 @@ class Database:
         retri = Multimedia.objects.all()
         return retri.photos.url
     #commments
+    def add_comms_from_FB(self, dats, post_fb_id):
+        try:
+            post = Post.objects.get(facebook_id=post_fb_id)#that way, unpublished post wont be used
+        except:
+            return "Post is hidden or don't exist"
+        fetch_comments = Comment.objects.filter(post_id=post.id)
+        zip_comments = list((fetch_comments[item].User, fetch_comments[item].content)for item in range(len(fetch_comments)))
+        comms = dats['comments']['data']
+        fb_coms = list((comms[item]['from']['name'], comms[item]['message']) for item in range(len(comms)))
+        for item in fb_coms:
+            if item not in zip_comments:
+                new_com = Comment(User=item[0], content=item[1], post_id=post.id)
+                new_com.save()
+
     def comments_of_post(self, post_id):
         retri_comm = Comment.objects.filter(post_id=post_id).values()
         return retri_comm
@@ -294,7 +288,7 @@ class Database:
         gall.save()
 
     #formularz
-    def new_registration(self, nick, name, surname, email, number, wydzial, kierunek, rok):
+    def new_registration(self, nick, name, surname, email, number, wydzial, kierunek, rok, subscription):
         new_member = Registration(nick=nick,
                                   name=name,
                                   surname=surname,
@@ -302,14 +296,17 @@ class Database:
                                   email=email,
                                   wydzial=wydzial,
                                   kierunek=kierunek,
-                                  rok=rok)
+                                  rok=rok,
+                                  subscription=subscription)
         new_member.save()
+#members
 
     def return_mails_of_users(self):
         data = Registration.objects.all()
         fetch_mails = []
-        for email in data:
-            fetch_mails.append(email.email)
+        for record in data:
+            if record.subscription == True:
+                fetch_mails.append(record.email)
         return fetch_mails
 
 
@@ -317,7 +314,14 @@ class Database:
         members = Registration.objects.values()
         return list(members)
 
-
-
-
-
+    def change_subs_status(self, email_adres):
+        try:
+            instance = Registration.objects.get(email=email_adres)
+        except:
+            return "No such email adress in database"
+        if instance.subscription == True:
+            instance.subscription = False
+            instance.save()
+            return "Successfully changed subscription status"
+        elif instance.subscription == False:
+            return "Subscription is already aborted"
