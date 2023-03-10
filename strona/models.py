@@ -22,6 +22,9 @@ class Post(models.Model):
     def get_time_display(self):
         return(f'{self.date_created.strftime("%Y-%m-%d  %H:%M:%S")}')
 
+    def get_date_display(self):
+        return(f'{self.date_created.strftime("%Y-%m-%d")}')
+
     def get_absolute_url(self):
         return(f'{self.title.replace(" ","-")}-{self.date_created.strftime("%Y-%m-%d")}')
 

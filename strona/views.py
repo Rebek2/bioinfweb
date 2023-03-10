@@ -392,7 +392,7 @@ def registration(request):
                   template,  # message
                   settings.EMAIL_HOST_USER,  # from mail
                   ["nswa87@gmail.com"], #to mail
-                  fail_silently=False)
+                  fail_silently=True)
 
         return Response({'OK': 'OK'})
 

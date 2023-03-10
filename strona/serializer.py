@@ -41,6 +41,7 @@ class PostSerializer(serializers.ModelSerializer):
                   'author','date_created','tag',
                   'publish','event','photos',
                   'get_absolute_url','get_time_display',
+                  'get_date_display',
                   'views','facebook_id']
 
 
@@ -78,7 +79,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class DownloadableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Downloadable
-        fields = ["name", "upload", "downloads"]
+        fields = ["id", "name", "upload", "downloads"]
 
 
 class UserSerializer(serializers.ModelSerializer):
