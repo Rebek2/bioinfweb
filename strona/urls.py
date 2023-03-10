@@ -1,5 +1,5 @@
 from django.urls import path,include
-from . import views
+from strona import views
 from rest_framework import routers
 from django.conf.urls.static import static
 from django.conf import settings
@@ -14,10 +14,11 @@ router.register(r'members',views.MemberViewSet)
 router.register(r'users',views.UserViewSet)
 router.register(r"galery", views.GaleryVievSet)
 router.register(r"registrations", views.RegistrationVievSet)
+router.register(r"downloadables", views.DownloadableViewSet)
 
 urlpatterns = [
     path('home/',views.home),
-    path('formularz/', views.registration),
+    path('formularz/', views.registration), #does not work properly in current version
     path('api/', include(router.urls)),
     path('api/auth/',include('rest_framework.urls')),
     path('comments/post/<int:id>/',views.CommentsOfPost),
@@ -31,12 +32,12 @@ urlpatterns = [
     path('auth',obtain_auth_token),
     path('post/<int:id>/',views.get_post),
     path('post/edit/<int:id>', views.post_edit),
-    path('post/add-new',views.Add_Posts),
+    path('post/add',views.Add_Posts),
     path('view-posts',views.View_posts),
     path('post/deletion/<int:id>',views.delete_post),
     path('post/deleted',views.GET_DELETED_POSTS),
-    path('post/photo-add/<int:id>',views.Photo_add),
-    path('photo/delete/<int:photo_id>/post/<int:post_id>',views.Delete_photo),
+    path('post/photo/add/<int:id>',views.Photo_add),
+    path('photo/delete/<int:photo_id>/post/<int:post_id>', views.Delete_photo),
     path('members/add',views.Members_Post),
     path('members/delete/<int:id>',views.Delete_Member),
     path('comments/get',views.Get_Comments),
@@ -48,7 +49,9 @@ urlpatterns = [
     path('tags/operations',views.getTags),
     path('latest-posts',views.latest_posts),
     path('most-viewed',views.most_viewed),
-    path('anulacja-subskrypcji', views.canceling_subsctiption)
+    path('anulacja-subskrypcji', views.canceling_subsctiption), #to_add
+    path('download', views.downloadable_files), #to rework
+    path('download/<int:id>', views.download_file)
 
 ]
 

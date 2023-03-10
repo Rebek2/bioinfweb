@@ -1,4 +1,4 @@
-from .models import Post, Comment, Tags, Multimedia, Members, Galery, Registration
+from .models import Post, Comment, Tags, Multimedia, Members, Galery, Registration, Downloadable
 from rest_framework import serializers
 from versatileimagefield.serializers import VersatileImageFieldSerializer
 from django.contrib.auth.models import User
@@ -73,6 +73,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
                   "rok",
                   'get_time',
                   "subscription"]
+
+
+class DownloadableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Downloadable
+        fields = ["name", "upload", "downloads"]
 
 
 class UserSerializer(serializers.ModelSerializer):

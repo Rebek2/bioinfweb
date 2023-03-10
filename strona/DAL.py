@@ -1,6 +1,8 @@
-from .models import Tags, Post, Multimedia, Comment, Galery, Registration
+from .models import Tags, Post, Multimedia, Comment, Galery, Registration, Downloadable
 import os
 import sqlite3
+from pathlib import Path
+from bioinfweb import settings
 
 class Database:
     #tagi
@@ -16,7 +18,7 @@ class Database:
         fetch_new_tags = Tags.objects.all()
         return fetch_new_tags
 
-    def fetch_tags(self, tag_id, do_all):
+    def fetch_tags(self, do_all, tag_id=0):
         if do_all is True:
             retri = Tags.objects.all()
             return retri
@@ -325,3 +327,60 @@ class Database:
             return "Successfully changed subscription status"
         elif instance.subscription == False:
             return "Subscription is already aborted"
+
+    def downloads_add(self, name, upload):
+        parsed_upload_name = str(upload).replace(' ', '_')
+
+        if len(Downloadable.objects.filter(name=name)) > 0:
+            status = "File with such title already exist, its recomended to delete this file with same title."
+            return status
+        elif len(Downloadable.objects.filter(name=name)) <= 0:
+            new_upload = Downloadable(name=name, upload=upload)
+            new_upload.save()
+            if parsed_upload_name in os.listdir(os.path.join(settings.MEDIA_ROOT, "uploads/")):
+                warn = "File saved. Warning, name of files was were identical."
+                return warn
+            else:
+                status = "File saved"
+                return status
+
+
+    def downloadable_fetch_all(self):
+        files = Downloadable.objects.all()
+        return files
+
+    def downloads_edit(self, id, upload):
+        file = Downloadable.objects.get(id=id)
+        file.upload = upload
+        file.save()
+        #deletion of no longer usefule files
+        files_in_uploads = os.listdir(os.path.join(settings.MEDIA_ROOT, 'uploads'))
+        all_files = Downloadable.objects.all().values()
+        all_files_lis = list(name['upload'].split(r'/')[1] for name in all_files)
+        for file in files_in_uploads:
+            if file not in all_files_lis:
+                os.remove(os.path.join(settings.MEDIA_ROOT, 'uploads', file))
+        status = "Changes saved"
+        return status
+
+    def downloads_counter(self, id):
+        file = Downloadable.objects.get(id=id)
+        file.downloads = file.downloads + 1
+        file.save()
+
+    def downloads_delete(self, id):
+        try:
+            file = Downloadable.objects.get(id=id)
+            name = str(file.upload.name).split(r'/')
+            if name[1] in os.listdir(os.path.join(settings.MEDIA_ROOT, 'uploads')):
+                os.remove(os.path.join(settings.MEDIA_ROOT, 'uploads', file.upload.name))
+            else:
+                status = "No such file in database"
+                return status
+            file.delete()  # test
+            status = 'File deleted'
+            return status
+        except:
+            status = "File do not exist!"
+
+            #return status

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .serializer import *
 from rest_framework import viewsets
 from .DAL import Database
@@ -16,7 +16,8 @@ from rest_framework.pagination import PageNumberPagination
 import facebook
 import requests
 import os
-
+from wsgiref.util import FileWrapper
+from rest_framework import generics
 
 class FB_manager:
     page_id = settings.PAGE_ID
@@ -31,9 +32,13 @@ class FB_manager:
             files_raw.append(file)
 
         graph = facebook.GraphAPI(self.facebook_access_token)
-        fb_id = graph.put_photo(image=open("media\\photos\\{}".format(str(files_raw[0])), "rb"),
-                                message=msg)
-        fb_post_id = str(fb_id["post_id"])
+        if len(files_raw)<1:
+            fb_id = graph.put_object(parent_object="me", connection_name="feed",message=msg)
+        else:
+            fb_id = graph.put_photo(image=open(r"./media/photos/{}".format(str(files_raw[0])), "rb"),
+                                    message=msg)
+
+        fb_post_id = str(fb_id["id"])
         post = self.dal.retrieve_post_by_id(post_id)
         post.facebook_id = fb_post_id
         post.save()
@@ -42,16 +47,22 @@ class FB_manager:
         post = self.dal.retrieve_post_by_id(post_id)
 
         graph = facebook.GraphAPI(self.facebook_access_token)
-        graph.delete_object(id=str(post.facebook_id))
+        try:
+            graph.delete_object(id=str(post.facebook_id))
+        except facebook.GraphAPIError:
+            post.facebook_id = 'None'
+            post.save()
 
         post.facebook_id = 'None'
         post.save()
 
     def fetch_data_post(self, post_id):
         post = self.dal.retrieve_post_by_id(post_id)
-        pfbid = post.facebook_id
-        data_url = "https://graph.facebook.com/v15.0/{}?fields=comments.summary(True),message.summary(True),full_picture&access_token={}".format(pfbid, self.facebook_access_token)
-        return requests.get(data_url).json()
+
+        graph = facebook.GraphAPI(self.facebook_access_token)
+        data_graph = graph.get_object(post.facebook_id)
+
+        return data_graph
 
     def edit_post(self, post_id):
         post = self.dal.retrieve_post_by_id(post_id)
@@ -61,21 +72,16 @@ class FB_manager:
                                                                                                   self.facebook_access_token)
         return requests.post(url)
 
-    def get_access_permanent_accest_token(self, app_secret, short_token):
+    def get_access_permanent(self, app_secret, short_token):
         urluno = "https://graph.facebook.com/v15.0/oauth/access_token?grant_type=fb_exchange_token&client_id={}&client_secret={}&fb_exchange_token={}".format(self.app_id, app_secret, short_token)
-        personal_token = requests.get(urluno).json()
-        urlduo = "https://graph.facebook.com/v15.0/me?access_token={}".format(personal_token["access_token"])
-        user_id = requests.get(urlduo).json()
-        urltri = "https://graph.facebook.com/v15.0/{}/accounts?access_token={}".format(user_id,personal_token)
-        token = requests.get(urltri).json()
-        return token[0]["access_token"]
-
+        token = requests.get(urluno).json()
+        return token["access_token"]
 
 
 def home(request):
     print('czesc')
     a = Database()
-    print(a.fetch_post_values(2))
+    print(FB_manager().fetch_data_post(9))
     #print(a.add_comms_from_FB(FB_manager().fetch_data_post(2),"111016638421384_127474316787981"))
     #print(FB_manager().fetch_data_post(2))
     return render(request, 'Home.html')
@@ -120,6 +126,12 @@ class RegistrationVievSet(viewsets.ModelViewSet):
     queryset = Registration.objects.all()
     serializer_class = RegistrationSerializer
 
+
+class DownloadableViewSet(viewsets.ModelViewSet):
+    queryset = Downloadable.objects.all()
+    serializer_class = DownloadableSerializer
+
+
 @api_view(['GET'])
 def get_post(request, id):
     try:
@@ -127,7 +139,7 @@ def get_post(request, id):
     except:
         return Response({'Response':'No data'})
     if request.method == 'GET':
-        Database().add_comms_from_FB(FB_manager().fetch_data_post(id),post.facebook_id)
+        #Database().add_comms_from_FB(FB_manager().fetch_data_post(id),post.facebook_id)
         post.add_view()
         post.save()
 
@@ -158,8 +170,8 @@ def PhotosOfPost(request, post_id):
 
 
 @api_view(['GET', 'POST', 'DELETE'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def post_edit(request, id):
     a = Database()
     try:
@@ -168,6 +180,7 @@ def post_edit(request, id):
         return Response({'Response':'Brak danych'})
     if request.method == 'DELETE':
         post.publish = False
+
         FB_manager().post_deletetion(post.id)
         post.save()
 
@@ -217,8 +230,8 @@ def post_edit(request, id):
 
 
 @api_view(['GET','POST'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def Add_Posts(request):
     base = Database()
     if request.method == 'POST':
@@ -356,7 +369,7 @@ def registration(request):
         wydzial = request.data["wydzial"]
         kierunek = request.data["kierunek"]
         rok = request.data["rok"]
-        sub = request.data["sub"]
+        subscription = request.data["subscription"]
         template = render_to_string("mail.html", {"nick": nick,
                                                   "name": name,
                                                   "surname": surname,
@@ -374,7 +387,7 @@ def registration(request):
                            wydzial,
                            kierunek,
                            rok,
-                           sub)
+                           subscription)
         send_mail("Dane zgłoszeniowe {} {}".format(name, surname),  # subject
                   template,  # message
                   settings.EMAIL_HOST_USER,  # from mail
@@ -536,8 +549,8 @@ def Delete_gallery(request,id):
         return Response(serializer.data)
 
 @api_view(['GET','DELETE', 'PUT'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def getTags(request):
     if request.method == 'GET':
         tags = Tags.objects.all()
@@ -552,6 +565,8 @@ def getTags(request):
 
     if request.method == "DELETE":
         Database().clear_unused_tags()
+        serializer = TagsSerializer(Database().fetch_tags(True), many=True)
+        return Response(serializer.data)
 
 
 
@@ -566,7 +581,6 @@ def latest_posts(request):
 def most_viewed(request):
     if request.method == 'GET':
         posts = Post.objects.all().filter(publish =True).order_by('-views')[:5]
-
         serializer = PostSerializer(posts,many=True)
         return Response(serializer.data)
 
@@ -577,3 +591,42 @@ def canceling_subsctiption(request):
         res = Database().change_subs_status(user_mail)
         return Response({"Status": "{}".format(res)})
     return Response({"ok":"ok"})
+
+@api_view(['POST', 'GET', 'PUT', 'DELETE'])
+
+def downloadable_files(request):
+    if request.method == "POST":
+        file_name = request.data['name']
+        upload = request.FILES["upload"]
+        status = Database().downloads_add(file_name, upload)
+        return Response({"Status":status})
+
+    if request.method == "GET":
+        serializer = DownloadableSerializer(Database().downloadable_fetch_all(), many=True)
+        return Response(serializer.data)
+
+    if request.method == "PUT":
+        file_name = request.data['id']
+        upload = request.FILES["upload"]
+        status = Database().downloads_edit(file_name, upload)
+        return Response({"Status":status})
+
+    if request.method == "DELETE":
+        file_id = request.data['id']
+        status = Database().downloads_delete(file_id)
+        return Response({"Status":status})
+
+    return Response({"Status":'100'})
+
+
+@api_view(["GET"])
+def download_file(request, id):
+
+            queryset = Downloadable.objects.get(id=id)
+            file_handle = queryset.upload.path
+            document = open(file_handle, 'rb')
+            response = HttpResponse(FileWrapper(document), content_type='application/msword')
+            response['Content-Disposition'] = 'attachment; filename="%s"' % queryset.upload.name
+            Database().downloads_counter(id=id)
+            return response
+

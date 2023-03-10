@@ -37,7 +37,7 @@ class Comment(models.Model):
                              on_delete=models.SET_NULL,
                              related_name='comments')
 
-    date = models.DateTimeField(auto_now_add = True)
+    date = models.DateTimeField(auto_now_add=True)
 
     def get_time(self):
         return(f'{self.date.strftime("%Y-%m-%d %H:%M:%S")}')
@@ -118,5 +118,15 @@ class Registration(models.Model):
 
     def get_time(self):
         return(f'{self.date.strftime("%Y-%m-%d %H:%M:%S")}')
+
+
+class Downloadable(models.Model):
+    name = models.CharField(max_length=150, null=True, )
+    upload = models.FileField(upload_to='uploads/')
+    downloads = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
+
 
 

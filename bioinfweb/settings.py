@@ -15,7 +15,7 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -65,7 +65,7 @@ ROOT_URLCONF = 'bioinfweb.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -145,12 +145,12 @@ PORT_NUMBER = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = "bioskn.messenger@gmail.com"
-EMAIL_HOST_PASSWORD =
+EMAIL_HOST_PASSWORD = ""
 
 #facebook_posting
 FACEBOOK_APP_ID = "1142906903313517"
 PAGE_ID = "111016638421384"  # 101267959409517
-FACEBOOK_ACCESS_TOKEN = "EAAQPd7ZC7vG0BAIHtbzKO7Xpmtr3muvFi7YU4kIwET8x2GfprciPikND3TrGSomCDXVgTV7Tp9vHTzWhpFIQo79nQkMNNuosU2nOZC1HrnLZAEZA0T17HHni4yaZCaR1UtI57FEd3PvceZB6yVS2N7YC5wuZCZAnUxCHqe9WQmI4u4SswikiZBfoQ"
+FACEBOOK_ACCESS_TOKEN = ""
 
 
 
