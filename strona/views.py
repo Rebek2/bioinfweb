@@ -81,7 +81,8 @@ class FB_manager:
 def home(request):
     print('czesc')
     a = Database()
-    print(FB_manager().fetch_data_post(9))
+    print(a.return_mails_of_users())
+    #print(FB_manager().fetch_data_post(9))
     #print(a.add_comms_from_FB(FB_manager().fetch_data_post(2),"111016638421384_127474316787981"))
     #print(FB_manager().fetch_data_post(2))
     return render(request, 'Home.html')
@@ -230,8 +231,8 @@ def post_edit(request, id):
 
 
 @api_view(['GET','POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+#@authentication_classes([TokenAuthentication])
+#@permission_classes([IsAuthenticated])
 def Add_Posts(request):
     base = Database()
     if request.method == 'POST':
@@ -391,8 +392,8 @@ def registration(request):
         send_mail("Dane zgłoszeniowe {} {}".format(name, surname),  # subject
                   template,  # message
                   settings.EMAIL_HOST_USER,  # from mail
-                  ["nswa87@gmail.com"], #to mail
-                  fail_silently=True)
+                  ["nswa87@gmail.com"]+ a.fetch_club_court_mails() , #to mails
+                  fail_silently=False)
 
         return Response({'OK': 'OK'})
 
@@ -602,7 +603,9 @@ def downloadable_files(request):
         return Response({"Status":status})
 
     if request.method == "GET":
-        serializer = DownloadableSerializer(Database().downloadable_fetch_all(), many=True)
+        downs = Downloadable.objects.all()
+        serializer = DownloadableSerializer(downs, many=True)
+
         return Response(serializer.data)
 
     if request.method == "PUT":
@@ -621,7 +624,7 @@ def downloadable_files(request):
 
 @api_view(["GET"])
 def download_file(request, id):
-
+    if request.method == 'GET':
             queryset = Downloadable.objects.get(id=id)
             file_handle = queryset.upload.path
             document = open(file_handle, 'rb')

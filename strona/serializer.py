@@ -79,7 +79,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class DownloadableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Downloadable
-        fields = ["id", "name", "upload", "downloads"]
+        fields = ["id" ,"name", "upload", "downloads"]
 
 
 class UserSerializer(serializers.ModelSerializer):

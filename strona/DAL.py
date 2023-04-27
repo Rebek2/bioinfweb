@@ -1,4 +1,4 @@
-from .models import Tags, Post, Multimedia, Comment, Galery, Registration, Downloadable
+from .models import Tags, Post, Multimedia, Comment, Galery, Registration, Downloadable, Members
 import os
 import sqlite3
 from pathlib import Path
@@ -305,11 +305,17 @@ class Database:
 
     def return_mails_of_users(self):
         data = Registration.objects.all()
+        data2 = Members.objects.all()
+        mails = list(map(lambda x: x.email, data2))
         fetch_mails = []
         for record in data:
             if record.subscription == True:
                 fetch_mails.append(record.email)
-        return fetch_mails
+
+        return list(set(fetch_mails + mails))
+
+    def fetch_club_court_mails(self):
+        return list(map(lambda x: x.email, Members.objects.all()))
 
 
     def list_of_members(self):
