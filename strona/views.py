@@ -21,7 +21,7 @@ from rest_framework import generics
 
 class FB_manager:
     page_id = settings.PAGE_ID
-    facebook_access_token = settings.FACEBOOK_ACCESS_TOKEN
+    access_token = settings.FACEBOOK_ACCESS_TOKEN
     app_id = settings.FACEBOOK_APP_ID
     dal = Database()
 
@@ -36,7 +36,7 @@ class FB_manager:
         for file in files:
             files_raw.append(file)
 
-        graph = facebook.GraphAPI(self.facebook_access_token)
+        graph = facebook.GraphAPI(self.access_token)
         if len(files_raw)<1:
             fb_id = graph.put_object(parent_object="me", connection_name="feed",message=msg)
         else:
@@ -53,7 +53,7 @@ class FB_manager:
             return
         post = self.dal.retrieve_post_by_id(post_id)
 
-        graph = facebook.GraphAPI(self.facebook_access_token)
+        graph = facebook.GraphAPI(self.access_token)
         try:
             graph.delete_object(id=str(post.facebook_id))
         except facebook.GraphAPIError:
@@ -68,7 +68,7 @@ class FB_manager:
             return
         post = self.dal.retrieve_post_by_id(post_id)
 
-        graph = facebook.GraphAPI(self.facebook_access_token)
+        graph = facebook.GraphAPI(self.access_token)
         data_graph = graph.get_object(post.facebook_id)
 
         return data_graph
@@ -78,9 +78,8 @@ class FB_manager:
             return
         post = self.dal.retrieve_post_by_id(post_id)
         mess = self.dal.fetch_post_values(post_id)
-        url = "https://graph.facebook.com/v15.0/{}?message={}%20wiadomosc&access_token={}".format(post.facebook_id,
-                                                                                                  mess,
-                                                                                                  self.facebook_access_token)
+        adress = "https://graph.facebook.com/v16.0/{}?message={}%20wiadomosc&access_token={}"
+        url = adress.format(post.facebook_id, mess, self.access_token)
         return requests.post(url)
 
     def get_access_permanent(self, app_secret, short_token):
@@ -192,6 +191,7 @@ def post_edit(request, id):
         post = a.retrieve_post_by_id(id=id)
     except:
         return Response({'Response':'Brak danych'})
+
     if request.method == 'DELETE':
         post.publish = False
 
