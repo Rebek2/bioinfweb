@@ -50,7 +50,7 @@ urlpatterns = [
     path('latest-posts',views.latest_posts),
     path('most-viewed',views.most_viewed),
     path('anulacja-subskrypcji', views.canceling_subsctiption), #to_add
-    path('download', views.downloadable_files), #to rework
+    path('download', views.downloadable_files),
     path('download/<int:id>', views.download_file)
 
 ]

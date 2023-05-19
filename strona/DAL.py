@@ -100,16 +100,16 @@ class Database:
         if author != new_post_content.author:
             new_post_content.author = author
 
-        #trying to figure out how to repair photos
+        #There will be text how it works
+        #
         fetch_postfiles = [] #iteration before adding new photos
         for item in range(len(new_post_content.photos.all())):
             fetch_postfiles.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
 
-        raw_file_names = []
-        for file in files:
-            raw_file_names.append(str(file).replace(" ", "_"))
+        raw_file_names = [str(file).replace(" ", "_") for file in files] #files from edit
 
         for item in range(len(raw_file_names)):
+
             if raw_file_names[item] not in fetch_postfiles:
                 new_photo = Multimedia(photos=files[item], post=new_post_content)
                 new_photo.save()

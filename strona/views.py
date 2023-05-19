@@ -21,7 +21,7 @@ from rest_framework import generics
 
 class FB_manager:
     page_id = settings.PAGE_ID
-    facebook_access_token = settings.FACEBOOK_ACCESS_TOKEN
+    access_token = settings.FACEBOOK_ACCESS_TOKEN
     app_id = settings.FACEBOOK_APP_ID
     dal = Database()
 
@@ -31,7 +31,7 @@ class FB_manager:
         for file in files:
             files_raw.append(file)
 
-        graph = facebook.GraphAPI(self.facebook_access_token)
+        graph = facebook.GraphAPI(self.access_token)
         if len(files_raw)<1:
             fb_id = graph.put_object(parent_object="me", connection_name="feed",message=msg)
         else:
@@ -46,7 +46,7 @@ class FB_manager:
     def post_deletetion(self, post_id):
         post = self.dal.retrieve_post_by_id(post_id)
 
-        graph = facebook.GraphAPI(self.facebook_access_token)
+        graph = facebook.GraphAPI(self.access_token)
         try:
             graph.delete_object(id=str(post.facebook_id))
         except facebook.GraphAPIError:
@@ -59,7 +59,7 @@ class FB_manager:
     def fetch_data_post(self, post_id):
         post = self.dal.retrieve_post_by_id(post_id)
 
-        graph = facebook.GraphAPI(self.facebook_access_token)
+        graph = facebook.GraphAPI(self.access_token)
         data_graph = graph.get_object(post.facebook_id)
 
         return data_graph
@@ -67,13 +67,13 @@ class FB_manager:
     def edit_post(self, post_id):
         post = self.dal.retrieve_post_by_id(post_id)
         mess = self.dal.fetch_post_values(post_id)
-        url = "https://graph.facebook.com/v15.0/{}?message={}%20wiadomosc&access_token={}".format(post.facebook_id,
-                                                                                                  mess,
-                                                                                                  self.facebook_access_token)
+        adress = "https://graph.facebook.com/v16.0/{}?message={}%20wiadomosc&access_token={}"
+        url = adress.format(post.facebook_id, mess, self.access_token)
         return requests.post(url)
 
     def get_access_permanent(self, app_secret, short_token):
-        urluno = "https://graph.facebook.com/v15.0/oauth/access_token?grant_type=fb_exchange_token&client_id={}&client_secret={}&fb_exchange_token={}".format(self.app_id, app_secret, short_token)
+        addres = "https://graph.facebook.com/v16.0/oauth/access_token?grant_type=fb_exchange_token&client_id={}&client_secret={}&fb_exchange_token={}"
+        urluno = addres.format(self.app_id, app_secret, short_token)
         token = requests.get(urluno).json()
         return token["access_token"]
 
@@ -171,14 +171,15 @@ def PhotosOfPost(request, post_id):
 
 
 @api_view(['GET', 'POST', 'DELETE'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+#@authentication_classes([TokenAuthentication])
+#@permission_classes([IsAuthenticated])
 def post_edit(request, id):
     a = Database()
     try:
         post = a.retrieve_post_by_id(id=id)
     except:
         return Response({'Response':'Brak danych'})
+
     if request.method == 'DELETE':
         post.publish = False
 
