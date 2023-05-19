@@ -59,12 +59,46 @@ class Database:
         all_data = (retri, retri2)
         return all_data
 
+    def update_photos_in_post(self, new_post_content):
+        #trying to figure out how to repair photos
+        fetch_postfiles = [] #iteration before adding new photos
+        for item in range(len(new_post_content.photos.all())):
+            fetch_postfiles.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
+
+        raw_file_names = []
+        for file in files:
+            raw_file_names.append(str(file).replace(" ", "_"))
+
+        for item in range(len(raw_file_names)):
+            if raw_file_names[item] not in fetch_postfiles:
+                new_photo = Multimedia(photos=files[item], post=new_post_content)
+                new_photo.save()
+                print(raw_file_names[item], True)
+            else:
+                print(raw_file_names[item], False)
+
+        fetch_postfiles_new = [] #iteration after adding new photos
+        for item in range(len(new_post_content.photos.all())):
+            fetch_postfiles_new.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
+
+        for photo in fetch_postfiles_new:
+            if photo not in raw_file_names:
+                instance = Multimedia.objects.get(photos="photos/{}".format(photo))
+                instance.delete()
+                if os.path.exists(r"media/photos/{}".format(photo)):
+                    os.remove(r"media/photos/{}".format(photo))
+                print(instance.photos, 1)
+
+            else:
+                print(photo, 0)
+
     def modify_post_by_id(self, id, tittle, content, author, event, tags, publish, files):
         new_post_content = Post.objects.get(id=id)
         new_post_content.publish = publish
         new_post_content.event = event
         #tags handling
         if len(tags) == 0:
+        #if tags.count() == 0:
             pass
         else:
             tags = tags.split(",")
@@ -100,37 +134,8 @@ class Database:
         if author != new_post_content.author:
             new_post_content.author = author
 
-        #trying to figure out how to repair photos
-        fetch_postfiles = [] #iteration before adding new photos
-        for item in range(len(new_post_content.photos.all())):
-            fetch_postfiles.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
 
-        raw_file_names = []
-        for file in files:
-            raw_file_names.append(str(file).replace(" ", "_"))
-
-        for item in range(len(raw_file_names)):
-            if raw_file_names[item] not in fetch_postfiles:
-                new_photo = Multimedia(photos=files[item], post=new_post_content)
-                new_photo.save()
-                print(raw_file_names[item],True)
-            else:
-                print(raw_file_names[item], False)
-
-        fetch_postfiles_new = [] #iteration after adding new photos
-        for item in range(len(new_post_content.photos.all())):
-            fetch_postfiles_new.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
-
-        for photo in fetch_postfiles_new:
-            if photo not in raw_file_names:
-                instance = Multimedia.objects.get(photos="photos/{}".format(photo))
-                instance.delete()
-                if os.path.exists(r"media/photos/{}".format(photo)):
-                    os.remove(r"media/photos/{}".format(photo))
-                print(instance.photos, 1)
-
-            else:
-                print(photo, 0)
+        #self.update_photos_in_post(new_post_content)
 
         new_post_content.save()
 

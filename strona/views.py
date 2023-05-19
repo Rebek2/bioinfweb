@@ -25,7 +25,12 @@ class FB_manager:
     app_id = settings.FACEBOOK_APP_ID
     dal = Database()
 
+    def __init__(self):
+        self.is_facebook_active = False
+
     def automation(self, files, post_id):
+        if not self.is_facebook_active:
+            return
         msg = self.dal.fetch_post_values(post_id)
         files_raw = []
         for file in files:
@@ -44,6 +49,8 @@ class FB_manager:
         post.save()
 
     def post_deletetion(self, post_id):
+        if not self.is_facebook_active:
+            return
         post = self.dal.retrieve_post_by_id(post_id)
 
         graph = facebook.GraphAPI(self.facebook_access_token)
@@ -57,6 +64,8 @@ class FB_manager:
         post.save()
 
     def fetch_data_post(self, post_id):
+        if not self.is_facebook_active:
+            return
         post = self.dal.retrieve_post_by_id(post_id)
 
         graph = facebook.GraphAPI(self.facebook_access_token)
@@ -65,6 +74,8 @@ class FB_manager:
         return data_graph
 
     def edit_post(self, post_id):
+        if not self.is_facebook_active:
+            return
         post = self.dal.retrieve_post_by_id(post_id)
         mess = self.dal.fetch_post_values(post_id)
         url = "https://graph.facebook.com/v15.0/{}?message={}%20wiadomosc&access_token={}".format(post.facebook_id,
@@ -73,6 +84,8 @@ class FB_manager:
         return requests.post(url)
 
     def get_access_permanent(self, app_secret, short_token):
+        if not self.is_facebook_active:
+            return
         urluno = "https://graph.facebook.com/v15.0/oauth/access_token?grant_type=fb_exchange_token&client_id={}&client_secret={}&fb_exchange_token={}".format(self.app_id, app_secret, short_token)
         token = requests.get(urluno).json()
         return token["access_token"]
@@ -170,7 +183,7 @@ def PhotosOfPost(request, post_id):
         return Response(serializer2.data)
 
 
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def post_edit(request, id):
@@ -190,14 +203,18 @@ def post_edit(request, id):
 
         return Response(serializer.data)
 
-    if request.method == 'POST':
+    if request.method == 'PUT':
         title = request.data['title']
         content = request.data['content']
         author = request.data['author']
         event = request.data['event']
-        tags = request.data['tag']
-        publish = request.data['publish']
-        photo = request.FILES.getlist('photos')
+        #tags = request.data['tag']
+        print(post.tag.all())
+        tags = ",".join([x.tagi for x in post.tag.all()])
+        #publish = request.data['publish']
+        publish = post.publish
+        #photo = request.FILES.getlist('photos')
+        photo = post.photos
 
         if event == 'true' or event == "True" or event == True or event == 1:
             event = True
@@ -211,10 +228,10 @@ def post_edit(request, id):
 
         a.modify_post_by_id(id, title, content, author, event, tags, publish, photo)
         raw_photos = []
-        for item in photo:
-            raw_photos.append(item)
 
         if publish == True:
+            for item in photo:
+                raw_photos.append(item)
             if post.facebook_id == "None":
                 FB_manager().automation(raw_photos, post.id)
             elif post.facebook_id != "None":
@@ -339,6 +356,20 @@ def delete_post(request, id):
         return Response({'Response':'Nie istniejacy wpis'})
     if request.method == 'DELETE':
         post.delete()
+        posts = Post.objects.filter(publish=False)
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
+@api_view(['PUT'])
+def post_restore(request, id):
+    try:
+        post = Database().retrieve_post_by_id(id)
+    except:
+        return Response({'Response': 'Nie istniejacy wpis'})
+    if request.method == 'PUT':
+        post.publish = True
+        post.save()
+        # post.delete()
         posts = Post.objects.filter(publish=False)
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
