@@ -9,7 +9,7 @@ class Database:
     def add_tags(self, tags_names):
         fetch_tags = Tags.objects.all()
         lis_fetch_tags = list(str(item.tagi) for item in fetch_tags)
-        tags_names.split(",")
+        tags_names = tags_names.split(",")
         for tag in tags_names:
             if tag not in lis_fetch_tags:
                 t = Tags(tagi=tag)
