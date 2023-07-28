@@ -19,14 +19,14 @@ import os
 from wsgiref.util import FileWrapper
 from rest_framework import generics
 
-class FB_manager:
-    page_id = settings.PAGE_ID
-    access_token = settings.FACEBOOK_ACCESS_TOKEN
-    app_id = settings.FACEBOOK_APP_ID
-    dal = Database()
 
+class FB_manager:
     def __init__(self):
         self.is_facebook_active = False
+        self.page_id = settings.PAGE_ID
+        self.access_token = settings.FACEBOOK_ACCESS_TOKEN
+        self.app_id = settings.FACEBOOK_APP_ID
+        self.dal = Database()
 
     def automation(self, files, post_id):
         if not self.is_facebook_active:
@@ -262,6 +262,7 @@ def Add_Posts(request):
             event = True
         else:
             event = False
+        content = content.replace("\n", "<br>")
 
         new_post = base.add_new_post(title, content, author, True, tags, event)
 
@@ -348,7 +349,7 @@ def View_posts(request):
         serializer = PostSerializer(result_page,many=True)
         return paginator.get_paginated_response(serializer.data)
 
-@api_view(['DELETE'])
+@api_view(['DELETE', 'PUT'])
 def delete_post(request, id):
     try:
         post = Database().retrieve_post_by_id(id)
@@ -373,7 +374,8 @@ def post_restore(request, id):
         posts = Post.objects.filter(publish=False)
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
-
+    if request.method == 'PUT':
+        posts = Post.objects.filter(pu)
 @api_view(['GET'])
 def Search_query(request,query):
     posts = Post.objects.all().filter(content__contains = query)
@@ -527,8 +529,8 @@ def get_club_members(request):
 
 
 @api_view(['DELETE'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
 def Delete_galleryPhoto(request,id):
     try:
         photo_instance = Multimedia.objects.get(id=id)
@@ -558,8 +560,8 @@ def add_gallery(request):
         return Response({'Ok':'Ok'})
 
 @api_view(['DELETE','POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
 def Delete_gallery(request,id):
     try:
         gallery = Galery.objects.get(id=id)

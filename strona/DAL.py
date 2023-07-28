@@ -61,7 +61,7 @@ class Database:
 
     def update_photos_in_post(self, new_post_content):
         #There will be text how it works
-        #
+        files = new_post_content
         fetch_postfiles = [] #iteration before adding new photos
         for item in range(len(new_post_content.photos.all())):
             fetch_postfiles.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
@@ -123,7 +123,37 @@ class Database:
         if author != new_post_content.author:
             new_post_content.author = author
 
-        #self.update_photos_in_post(new_post_content)
+        #There will be text how it works
+        #
+        fetch_postfiles = [] #iteration before adding new photos
+        for item in range(len(new_post_content.photos.all())):
+            fetch_postfiles.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
+
+        raw_file_names = [str(file).replace(" ", "_") for file in files] #files from edit
+
+        for item in range(len(raw_file_names)):
+
+            if raw_file_names[item] not in fetch_postfiles:
+                new_photo = Multimedia(photos=files[item], post=new_post_content)
+                new_photo.save()
+                print(raw_file_names[item],True)
+            else:
+                print(raw_file_names[item], False)
+
+        fetch_postfiles_new = [] #iteration after adding new photos
+        for item in range(len(new_post_content.photos.all())):
+            fetch_postfiles_new.append(str(new_post_content.photos.all()[item].photos).split("photos/")[1])
+
+        for photo in fetch_postfiles_new:
+            if photo not in raw_file_names:
+                instance = Multimedia.objects.get(photos="photos/{}".format(photo))
+                instance.delete()
+                if os.path.exists(r"media/photos/{}".format(photo)):
+                    os.remove(r"media/photos/{}".format(photo))
+                print(instance.photos, 1)
+
+            else:
+                print(photo, 0)
 
         new_post_content.save()
 
@@ -382,4 +412,4 @@ class Database:
         except:
             status = "File do not exist!"
 
-            #return status
+            return status
