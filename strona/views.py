@@ -248,8 +248,8 @@ def post_edit(request, id):
 
 
 @api_view(['GET','POST'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def Add_Posts(request):
     base = Database()
     if request.method == 'POST':
@@ -262,7 +262,7 @@ def Add_Posts(request):
             event = True
         else:
             event = False
-        content = content.replace("\n", "<br>")
+
 
         new_post = base.add_new_post(title, content, author, True, tags, event)
 
@@ -529,8 +529,8 @@ def get_club_members(request):
 
 
 @api_view(['DELETE'])
-# @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def Delete_galleryPhoto(request,id):
     try:
         photo_instance = Multimedia.objects.get(id=id)
@@ -560,8 +560,8 @@ def add_gallery(request):
         return Response({'Ok':'Ok'})
 
 @api_view(['DELETE','POST'])
-# @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def Delete_gallery(request,id):
     try:
         gallery = Galery.objects.get(id=id)
